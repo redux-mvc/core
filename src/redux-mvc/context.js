@@ -38,7 +38,7 @@ export const withReduxMVCContext = ({
                     }
                 })
 
-                let bridgeMiddleware = () => () => () => {}
+                let bridgeMiddleware = () => next => action => next(action)
 
                 if (
                     addBridge({

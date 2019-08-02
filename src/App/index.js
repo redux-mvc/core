@@ -15,9 +15,9 @@ import rootSaga from "./sagas"
 const decorate = R.compose(
     addCreateStore(),
     addSagaMiddleware(rootSaga),
-    merge(searchBar),
     addReducer(),
-    addEvents()
+    addEvents(),
+    merge(searchBar)
 )
 
 const module = decorate(model)

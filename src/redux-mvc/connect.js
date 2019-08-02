@@ -3,11 +3,11 @@ import React, { Component } from "react"
 import { getDisplayName } from "./utils"
 import { ReduxMVCContext } from "./context"
 
-const createProxyAction = (f, instance, dispatch) => (
+const createProxyAction = (f, instance, store) => (
     payload,
     params = { meta: {} },
     error = false
-) => dispatch(f(payload, params, error))
+) => store.dispatch(f(payload, params, error))
 
 export const connect = (selectors, actions) => {
     return WrappedComponent => {
@@ -25,10 +25,7 @@ export const connect = (selectors, actions) => {
                         selectors,
                         props
                     ),
-                    proxyActions: this.getProxyActions(
-                        context.store.dispatch,
-                        actions
-                    ),
+                    proxyActions: this.getProxyActions(context.store, actions),
                 }
             }
             getProps(state, selectors, props) {
@@ -40,11 +37,14 @@ export const connect = (selectors, actions) => {
                     props
                 )
             }
-            getProxyActions(dispatch, actions) {
-                return Object.entries(actions).reduce((acc, [key, f]) => ({
-                    ...acc,
-                    [key]: createProxyAction(f, this, dispatch),
-                }))
+            getProxyActions(store, actions) {
+                return Object.entries(actions).reduce(
+                    (acc, [key, f]) => ({
+                        ...acc,
+                        [key]: createProxyAction(f, this, store),
+                    }),
+                    {}
+                )
             }
 
             componentWillReceiveProps(nextProps) {

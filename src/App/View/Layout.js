@@ -8,13 +8,16 @@ import { selectors, actions } from "App/model"
 
 const decorate = connect(
     {
-        message: selectors.message,
+        count: selectors.count,
     },
-    { sayHello: actions.sayHello }
+    { add: () => actions.add() }
 )
 
-const App = ({ message = "HELLO WORLD", sayHello = noop }) => (
-    <div onClick={sayHello}>{message}</div>
+const App = ({ count = 0, add = noop }) => (
+    <div>
+        <button onClick={add}>add</button>
+        {count}
+    </div>
 )
 
 export default decorate(App)

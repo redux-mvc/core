@@ -1,15 +1,13 @@
-import * as R from "ramda"
-
 import { createModel } from "redux-mvc"
 
 const iniState = {
-    message: "Hola Mundo!",
+    count: 0,
 }
 
 const model = createModel({
     iniState,
     reducers: {
-        sayHello: R.identity,
+        add: ({ count }) => ({ count: count + 1 }),
     },
     namespace: "App",
 })
