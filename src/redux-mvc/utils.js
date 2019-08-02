@@ -1,0 +1,36 @@
+/* eslint-disable no-underscore-dangle */
+import { DEFAULT_INSTANCE_ID } from "./constants"
+
+// lib
+export const identity = x => x
+export const noop = () => {}
+export const propOr = (or, prop, val) => {
+    if (val && typeof val[prop] !== "undefined") {
+        return val[prop]
+    }
+    return or
+}
+export const prop = (...args) => propOr(undefined, ...args)
+
+export const pathOr = (or, path, val) =>
+    path.reduce((acc, key) => prop(key, acc), val) || or
+
+export const path = (...args) => pathOr(undefined, ...args)
+export const mergeAll = all =>
+    all.reduce((acc, val) => ({ ...acc, ...(val || {}) }), {})
+
+// mvc utils
+export const getSelectorInstanceId = props =>
+    propOr(DEFAULT_INSTANCE_ID, "instanceId", props)
+
+export const getActionInstanceId = action =>
+    pathOr(DEFAULT_INSTANCE_ID, ["meta", "instanceId"], action)
+
+export const getDisplayName = WrappedComponent => {
+    return WrappedComponent.displayName || WrappedComponent.name || "Component"
+}
+
+export const concatReducers = reducers => (state, action) =>
+    reducers.reduce((acc, r) => r(acc, action), state)
+
+export const capitalizeFirst = str => str[0].toUpperCase() + str.slice(1)

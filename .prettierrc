@@ -1,0 +1,5 @@
+semi: false
+trailingComma: es5
+singleQuote: false
+jsxBracketSameLine: false
+tabWidth: 4

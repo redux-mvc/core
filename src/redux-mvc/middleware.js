@@ -1,0 +1,78 @@
+import * as R from "ramda"
+import { noop } from "./utils"
+import { REDUX_MVC_GLOBAL_UPDATE } from "./constants"
+
+const makeSubscribe = ({ globalStore, observedDomains, store }) => {
+    let lastState = globalStore.getState()
+
+    return () => {
+        store.dispatch({
+            type: `${REDUX_MVC_GLOBAL_UPDATE}/init`,
+            payload: R.pick(observedDomains, lastState),
+        })
+
+        return globalStore.subscribe(() => {
+            const newState = globalStore.getState()
+
+            observedDomains.forEach(key => {
+                if (newState[key] !== lastState[key]) {
+                    store.dispatch({
+                        type: `${REDUX_MVC_GLOBAL_UPDATE}/update`,
+                        payload: R.pick(observedDomains, newState),
+                    })
+                    lastState = newState
+                    return
+                }
+            })
+        })
+    }
+}
+
+export const bridge = (observedDomains, dispatchToGlobal, globalStore) => {
+    // TODO: add validations
+
+    const filter =
+        typeof dispatchToGlobal === "function"
+            ? dispatchToGlobal
+            : Array.isArray(dispatchToGlobal)
+            ? R.compose(
+                  R.contains(R.__, dispatchToGlobal), // eslint-disable-line no-underscore-dangle
+                  R.prop("type")
+              )
+            : noop
+
+    let subscription = noop
+    let subscribe = noop
+
+    const middleware = store => {
+        subscribe = makeSubscribe({ globalStore, observedDomains, store })
+
+        if (filter !== noop) {
+            // eslint-disable-next-line consistent-return
+            return next => action => {
+                if (filter(action)) {
+                    if (typeof action === "function") {
+                        // send thunks only to global
+                        globalStore.dispatch(action)
+                    } else {
+                        const result = next(action)
+                        globalStore.dispatch(action)
+                        return result
+                    }
+                } else {
+                    return next(action)
+                }
+            }
+        }
+
+        return R.identity
+    }
+
+    return {
+        middleware,
+        subscribe: () => {
+            subscription = subscribe()
+        },
+        unsubscribe: () => subscription(),
+    }
+}
