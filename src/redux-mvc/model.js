@@ -91,6 +91,7 @@ export const createModel = ({ iniState, reducers = {}, namespace = "" }) => {
                 return pathOr(iniState, [namespace, instanceId], state)
             },
             identity: state => propOr(iniState, namespace, state),
+            module: s => s,
         }
     )
     const handlers = mergeAll([setReducers, customReducers]) // reducers
@@ -101,5 +102,6 @@ export const createModel = ({ iniState, reducers = {}, namespace = "" }) => {
         selectors,
         iniState: { [namespace]: { [DEFAULT_INSTANCE_ID]: iniState } },
         namespace,
+        namespaces: [namespace],
     }
 }

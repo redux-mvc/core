@@ -1,7 +1,12 @@
-import { call } from "redux-saga/effects"
+import { call, take } from "redux-saga/effects"
+
+import { actions } from "App/model"
 
 const rootSaga = function*() {
-    yield call([console, console.log], "hello")
+    for (;;) {
+        yield take(actions.add.type)
+        yield call([console, console.log], "hello")
+    }
 }
 
 export default rootSaga

@@ -1,13 +1,58 @@
-import { hot } from "react-hot-loader"
+import * as R from "ramda"
+import React, { useState } from "react"
 
-import { withReduxMVCContext } from "redux-mvc"
+import { Column, Row } from "./Common"
 
-import appModule from "App"
+import CounterModule from "./CounterModule"
+import SameDefaultInstance from "./SameDefaultInstance"
+import PassInstanceToContext from "./PassInstanceToContext"
+import InstanceAsPropsAndContext from "./InstanceAsPropAndContex"
 
-import Layout from "./Layout"
+const options = {
+    CounterModule: {
+        name: "CounterModule",
+        view: CounterModule,
+    },
+    SameDefaultInstance: {
+        name: "SameDefaultInstance",
+        view: SameDefaultInstance,
+    },
+    PassInstanceToContext: {
+        name: "PassInstanceToContext",
+        view: PassInstanceToContext,
+        props: { instanceId: "instance1" },
+    },
+    InstanceAsPropsAndContext: {
+        name: "InstanceAsPropAndContext",
+        view: InstanceAsPropsAndContext,
+        props: { instanceId: "instance1" },
+    },
+}
 
-const decorate = withReduxMVCContext({
-    module: appModule,
-})
+const App = () => {
+    const [view, setView] = useState("CounterModule")
 
-export default hot(module)(decorate(Layout))
+    return (
+        <Column>
+            <Row style={{ marginBottom: 20, fontSize: 20, fontWeight: 300 }}>
+                <select
+                    onChange={e => setView(e.target.value)}
+                    value={view}
+                    style={{ fontSize: 30 }}
+                >
+                    {Object.values(options).map(option => (
+                        <option value={option.name} key={option.name}>
+                            {option.name}
+                        </option>
+                    ))}
+                </select>
+            </Row>
+            {React.createElement(
+                R.pathOr(CounterModule, [view, "view"], options),
+                R.pathOr({}, [view, "props"], options)
+            )}
+        </Column>
+    )
+}
+
+export default App

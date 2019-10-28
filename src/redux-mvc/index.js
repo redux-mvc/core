@@ -1,5 +1,6 @@
-export { withReduxMVCContext } from "./context"
-export { connect } from "./connect"
+export { StoreManager } from "./context"
+export { createContext } from "./providers"
+export { connect } from "./consumers"
 export { createModel } from "./model"
 export { bindInstance } from "./bindInstance"
 export { moduleInterface } from "./interface"

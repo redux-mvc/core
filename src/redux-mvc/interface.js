@@ -4,7 +4,6 @@ export const moduleInterface = {
     actions: {},
     namespace: "",
     namespaces: [],
-    sagas: [],
     on() {},
     dispatch() {},
     reducer() {},

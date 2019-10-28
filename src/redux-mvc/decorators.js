@@ -22,7 +22,11 @@ export const addReducer = () => module => ({
         const instanceId = getActionInstanceId(action)
         const namespace = action.namespace
         const p = [namespace, instanceId]
-        const oldState = pathOr(path(p, module.iniState), p, state)
+        const oldState = pathOr(
+            path([namespace, "default"], module.iniState),
+            p,
+            state
+        )
         const newState = selectedReducer(oldState, action)
 
         if (newState !== oldState) {
@@ -68,19 +72,18 @@ const composeEnhancers =
 
 export const addCreateStore = () => module => ({
     ...module,
-    createStore({ instance, bridgeMiddleware, persist = false }) {
-        if (persist && instance.store) {
-            return instance.store
-        }
-
-        const store = createStore(
+    createStore({ bridgeMiddleware }) {
+        const middleware = [
+            ...(module.middleware || []),
+            bridgeMiddleware,
+        ].filter(x => x)
+        return createStore(
             module.reducer,
             module.iniState,
             composeEnhancers({
                 name: module.namespace,
-            })(applyMiddleware(...module.middleware, bridgeMiddleware))
+            })(applyMiddleware(...middleware))
         )
-        return store
     },
 })
 
@@ -89,10 +92,14 @@ export const merge = right => left => ({
     iniState: { ...right.iniState, ...left.iniState },
     reducers: { ...right.reducers, ...left.reducers },
     sagas: [...(right.sagas || []), ...(left.sagas || [])],
-    namespaces: [
-        right.namespace,
-        ...(right.namespaces || []),
-        ...(left.namespaces || []),
+    namespaces: [...(right.namespaces || []), ...(left.namespaces || [])],
+    observedDomains: [
+        ...(right.observedDomains || []),
+        ...(left.observedDomains || []),
+    ],
+    dispatchToGlobal: [
+        ...(right.observedDomains || []),
+        ...(left.observedDomains || []),
     ],
 })
 

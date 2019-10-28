@@ -51,14 +51,7 @@ export const bridge = (observedDomains, dispatchToGlobal, globalStore) => {
             // eslint-disable-next-line consistent-return
             return next => action => {
                 if (filter(action)) {
-                    if (typeof action === "function") {
-                        // send thunks only to global
-                        globalStore.dispatch(action)
-                    } else {
-                        const result = next(action)
-                        globalStore.dispatch(action)
-                        return result
-                    }
+                    globalStore.dispatch(action)
                 } else {
                     return next(action)
                 }
