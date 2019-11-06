@@ -1,13 +1,12 @@
+import * as R from "ramda"
 import { createModel } from "redux-mvc"
 
-const iniState = {
-    count: 0,
-}
-
 const model = createModel({
-    iniState,
+    iniState: {
+        fixedCount: 30,
+    },
     reducers: {
-        add: ({ count }) => ({ count: count + 1 }),
+        create: R.always({ created: true }),
     },
     namespace: "App",
 })

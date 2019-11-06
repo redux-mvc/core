@@ -10,7 +10,11 @@ import {
     capitalizeFirst,
 } from "./utils"
 
-export const createModel = ({ iniState, reducers = {}, namespace = "" }) => {
+export const createModel = ({
+    iniState = {},
+    reducers = {},
+    namespace = "",
+}) => {
     const setActions = Object.keys(iniState).reduce(
         (acc, key) => {
             const setKey = `set${capitalizeFirst(key)}`

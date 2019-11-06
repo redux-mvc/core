@@ -44,7 +44,7 @@ describe("## Redux-MVC context", () => {
 
         expect(wrapper.text()).toContain("0")
 
-        wrapper.find("button").simulate("click")
+        wrapper.find('[data-test-id="add"]').simulate("click")
         expect(wrapper.text()).toContain("1")
         expect(instance.store.getState()).toEqual({
             Counter: {
@@ -71,7 +71,7 @@ describe("## Redux-MVC context", () => {
 
         expect(wrapper.text()).toContain("0")
 
-        wrapper.find("button").simulate("click")
+        wrapper.find('[data-test-id="add"]').simulate("click")
         expect(wrapper.text()).toContain("1")
         expect(instance.store.getState()).toEqual({
             Counter: {
@@ -113,7 +113,7 @@ describe("## Redux-MVC context", () => {
 
         expect(wrapper.text()).toContain("0")
 
-        wrapper.find("button").simulate("click")
+        wrapper.find('[data-test-id="add"]').simulate("click")
         expect(wrapper.text()).toContain("1")
         expect(instance.store.getState()).toEqual({
             Counter: {
@@ -167,7 +167,7 @@ describe("## Redux-MVC context", () => {
 
         expect(wrapper.text()).toContain("0")
 
-        wrapper.find("button").simulate("click")
+        wrapper.find('[data-test-id="add"]').simulate("click")
         expect(wrapper.text()).toContain("1")
         expect(instance.store.getState()).toEqual({
             Counter: {

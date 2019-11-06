@@ -44,7 +44,7 @@
    #+BEGIN_EXAMPLE
    - Module
      |- SubModule
-        |- index (module)
+        |- index.js (module)
         |- model / handlers (optional to create the )
         |- selectors (reselect)
            |- index.js
@@ -83,10 +83,19 @@
         props.clearSearchAndFilters()
       }}>
       #+END_EXAMPLE
+      
+   - Do not write logic when dispatching an action
 
-** Try to use the architecture
+      #+BEGIN_EXAMPLE
+      <div onClick={() => {
+        const filters = R.map(f => ({ name: f.name }), props.filters)
+        props.setFilters(filters)
+      }}>
+      #+END_EXAMPLE
+
+** Try to use each part of the architecture
    
-   Be suspicious
+  If you see
    
   #+BEGIN_EXAMPLE
   const handlers = createHandlers({
@@ -102,5 +111,7 @@
     namespace: "ApproversLabel"
   });
   #+END_EXAMPLE
+  
+  Be suspicious
   
   This may mean that the buisiness logic may be in other place than reducers

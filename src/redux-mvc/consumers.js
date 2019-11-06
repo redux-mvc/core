@@ -3,45 +3,30 @@ import React, { Component } from "react"
 import { getDisplayName } from "./utils"
 import { StoreManager } from "./context"
 
-const createProxyAction = (f, that, store) => (
+const createProxyAction = (proxy, store, that) => (
     payload,
     params = { meta: {} },
     error = false
-) => {
-    if (typeof f.instanceId === "function" && typeof f.f === "function") {
-        return store.dispatch(
-            f.f(
-                payload,
-                {
-                    ...params,
-                    meta: {
-                        ...params.meta,
-                        instanceId: f.instanceId(that.props),
-                    },
-                },
-                error
-            )
-        )
-    }
-
-    return store.dispatch(
-        f(
+) =>
+    store.dispatch(
+        proxy.actionProp(
             payload,
             {
                 ...params,
                 meta: {
-                    ...params.meta,
                     instanceId:
                         that.props.instanceId || that.context.instanceId,
+                    ...params.meta,
                 },
             },
             error
         )
     )
-}
 
 // check how instances work
-export const connect = (selectors = {}, actions = {}) => {
+export const connect = (s, a) => {
+    const selectors = s || {}
+    const actions = a || {}
     return WrappedComponent => {
         class WithReduxMVCConnect extends Component {
             static contextType = StoreManager
@@ -54,17 +39,27 @@ export const connect = (selectors = {}, actions = {}) => {
             constructor(props, context) {
                 super(props, context)
 
+                this.computedProps = this.getProps(
+                    this.getStore().getState(),
+                    selectors,
+                    props,
+                    context.instanceId
+                )
+                this.proxyActions = this.getProxyActions(
+                    this.getStore(),
+                    typeof actions === "function"
+                        ? actions(this.computedProps)
+                        : actions
+                )
+                this.computedActions = Object.entries(this.proxyActions).reduce(
+                    (acc, [key, { proxy }]) => {
+                        acc[key] = proxy
+                        return acc
+                    },
+                    {}
+                )
                 this.state = {
-                    props: this.getProps(
-                        this.getStore().getState(),
-                        selectors,
-                        props,
-                        context.instanceId
-                    ),
-                    proxyActions: this.getProxyActions(
-                        this.getStore(),
-                        actions
-                    ),
+                    runShouldComponentUpdate: {},
                 }
             }
             getProps(state, selectors, props, instanceId) {
@@ -93,29 +88,35 @@ export const connect = (selectors = {}, actions = {}) => {
 
             // @NOTE: make real proxy actions
             getProxyActions(store, actions) {
-                return Object.entries(actions).reduce(
-                    (acc, [key, f]) => ({
-                        ...acc,
-                        [key]: createProxyAction(f, this, store),
-                    }),
-                    {}
+                return Object.entries(actions).reduce((acc, [key, f]) => {
+                    acc[key] = { actionProp: f }
+                    const proxy = createProxyAction(acc[key], store, this)
+                    acc[key].proxy = proxy
+                    return acc
+                }, {})
+            }
+
+            shouldComponentUpdate(props) {
+                const nextProps = this.getProps(
+                    this.getStore().getState(),
+                    selectors,
+                    props,
+                    this.context.instanceId
                 )
-            }
+                for (const key in nextProps) {
+                    if (nextProps[key] !== this.computedProps[key]) {
+                        this.computedProps = nextProps
 
-            componentWillReceiveProps(nextProps) {
-                this.setState({
-                    props: this.getProps(
-                        this.getStore().getState(),
-                        selectors,
-                        nextProps,
-                        this.context.instanceId
-                    ),
-                })
-            }
-
-            shouldComponentUpdate(_, nextState) {
-                for (const key in nextState.props) {
-                    if (nextState.props[key] !== this.state.props[key]) {
+                        if (typeof actions === "function") {
+                            const newActions = actions(this.computedProps)
+                            Object.entries(this.proxyActions).forEach(
+                                ([key, proxyAction]) => {
+                                    if (newActions[key]) {
+                                        proxyAction.actionProp = newActions[key]
+                                    }
+                                }
+                            )
+                        }
                         return true
                     }
                 }
@@ -125,12 +126,7 @@ export const connect = (selectors = {}, actions = {}) => {
             componentDidMount() {
                 this.unsubscribe = this.getStore().subscribe(() => {
                     this.setState({
-                        props: this.getProps(
-                            this.getStore().getState(),
-                            selectors,
-                            this.props,
-                            this.context.instanceId
-                        ),
+                        runShouldComponentUpdate: {},
                     })
                 })
             }
@@ -140,8 +136,8 @@ export const connect = (selectors = {}, actions = {}) => {
             render() {
                 return (
                     <WrappedComponent
-                        {...this.state.props}
-                        {...this.state.proxyActions}
+                        {...this.computedProps}
+                        {...this.computedActions}
                         instanceId={
                             this.props.instanceId || this.context.instanceId
                         }

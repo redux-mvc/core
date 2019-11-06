@@ -23,7 +23,7 @@ const options = {
         props: { instanceId: "instance1" },
     },
     InstanceAsPropsAndContext: {
-        name: "InstanceAsPropAndContext",
+        name: "InstanceAsPropsAndContext",
         view: InstanceAsPropsAndContext,
         props: { instanceId: "instance1" },
     },

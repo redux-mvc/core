@@ -9,6 +9,7 @@ import {
 
 import model from "./model.js"
 import searchBar from "ui-kit/SearchBar"
+import counter from "ui-kit/Counter"
 
 import rootSaga from "./sagas"
 
@@ -17,7 +18,8 @@ const decorate = R.compose(
     addSagaMiddleware(rootSaga),
     addReducer(),
     addEvents(),
-    merge(searchBar)
+    merge(searchBar),
+    merge(counter)
 )
 
 const module = decorate(model)

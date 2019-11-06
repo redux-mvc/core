@@ -15,11 +15,16 @@ const Counter = ({
     add = noop,
     reset = noop,
     instanceId,
-    ...style
+    style = {},
+    ...props
 }) => (
-    <div style={{ display: "flex", ...style }}>
+    <div style={{ display: "flex", ...style }} {...props}>
         <div style={{ marginRight: 10 }}>{instanceId}:</div>
-        <button style={{ marginRight: 10 }} onClick={() => add()}>
+        <button
+            style={{ marginRight: 10 }}
+            onClick={() => add()}
+            data-test-id="add"
+        >
             add
         </button>
         <button style={{ marginRight: 10 }} onClick={() => reset()}>
