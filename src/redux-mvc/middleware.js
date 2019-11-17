@@ -32,14 +32,7 @@ export const bridge = (observedDomains, dispatchToGlobal, globalStore) => {
     // TODO: add validations
 
     const filter =
-        typeof dispatchToGlobal === "function"
-            ? dispatchToGlobal
-            : Array.isArray(dispatchToGlobal)
-            ? R.compose(
-                  R.contains(R.__, dispatchToGlobal), // eslint-disable-line no-underscore-dangle
-                  R.prop("type")
-              )
-            : noop
+        (typeof dispatchToGlobal === "function" && dispatchToGlobal) || noop
 
     let subscription = noop
     let subscribe = noop

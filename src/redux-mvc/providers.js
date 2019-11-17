@@ -14,11 +14,9 @@ const notBind = ["constructor", "componentWillUnmount"]
 
 const defGetInstanceId = props => props.instanceId
 
-const addBridge = ({ observedDomains, dispatchToGlobal, globalStore }) =>
+const addBridge = ({ observedDomains, globalStore }) =>
     Boolean(globalStore) &&
-    (Array.isArray(observedDomains) && observedDomains.length > 0) &&
-    ((Array.isArray(dispatchToGlobal) && dispatchToGlobal.length > 0) ||
-        typeof dispatchToGlobal === "function")
+    (Array.isArray(observedDomains) && observedDomains.length > 0)
 
 export const createContext = ({
     module,
@@ -59,7 +57,6 @@ export const createContext = ({
                     instance !== REDUX_MVC_GLOBAL_STORE_INSTANCE &&
                     addBridge({
                         observedDomains: module.observedDomains,
-                        dispatchToGlobal: module.dispatchToGlobal,
                         globalStore:
                             context.instances[REDUX_MVC_GLOBAL_STORE_INSTANCE],
                     })

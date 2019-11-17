@@ -1,7 +1,14 @@
 import * as R from "ramda"
 import createSagaMiddleware from "redux-saga"
 import { createStore, applyMiddleware, compose } from "redux"
-import { mergeAll, path, pathOr, prop, getActionInstanceId } from "./utils"
+import {
+    mergeAll,
+    path,
+    pathOr,
+    prop,
+    getActionInstanceId,
+    noop,
+} from "./utils"
 
 import { REDUX_MVC_GLOBAL_UPDATE } from "./constants"
 
@@ -46,6 +53,18 @@ export const addReducer = () => module => ({
     },
 })
 
+export const addObserveGlobal = ({
+    observedDomains = [],
+    dispatchToGlobal = noop,
+}) => module => ({
+    ...module,
+    observedDomains: R.length(observedDomains)
+        ? observedDomains
+        : module.observedDomains,
+    dispatchToGlobal:
+        dispatchToGlobal !== noop ? dispatchToGlobal : module.dispatchToGlobal,
+})
+
 export const addSagaMiddleware = rootSaga => module => {
     const sagaMiddleware = createSagaMiddleware()
 
@@ -70,7 +89,7 @@ const defaultCompose = () => compose
 const composeEnhancers =
     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || defaultCompose // eslint-disable-line no-underscore-dangle
 
-export const addCreateStore = () => module => ({
+export const addCreateStore = options => module => ({
     ...module,
     createStore({ bridgeMiddleware }) {
         const middleware = [
@@ -82,10 +101,18 @@ export const addCreateStore = () => module => ({
             module.iniState,
             composeEnhancers({
                 name: module.namespace,
+                ...options,
             })(applyMiddleware(...middleware))
         )
     },
 })
+
+const makeDispatchToGlobal = namespaces =>
+    R.compose(
+        R.not,
+        R.test(new RegExp(R.join("|", namespaces))),
+        R.prop("type")
+    )
 
 export const merge = right => left => ({
     ...left,
@@ -97,10 +124,10 @@ export const merge = right => left => ({
         ...(right.observedDomains || []),
         ...(left.observedDomains || []),
     ],
-    dispatchToGlobal: [
-        ...(right.observedDomains || []),
-        ...(left.observedDomains || []),
-    ],
+    dispatchToGlobal: makeDispatchToGlobal([
+        ...(right.namespaces || []),
+        ...(left.namespaces || []),
+    ]),
 })
 
 export const addEvents = () => module => {
