@@ -19,7 +19,8 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
-      - run: npm run test
+      - run: npm run lint
+      - run: npm run test -- --coverage
       - store_test_results:
           path: ./results
 

@@ -14,7 +14,7 @@
         "build:prod": "NODE_ENV=production webpack --config ./webpack.prod.js",
         "build:lib": "NODE_ENV=production webpack --config ./webpack.lib.js",
         "test": "jest",
-        "all": "yarn --install --pure-lockfile && yarn lint && yarn test && yarn build:lib"
+        "all": "yarn --install --pure-lockfile && yarn lint && yarn test --coverage && yarn build:lib"
     },
     "peerDependencies": {
         "react": ">=16",
