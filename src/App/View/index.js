@@ -7,6 +7,7 @@ import CounterModule from "./CounterModule"
 import SameDefaultInstance from "./SameDefaultInstance"
 import PassInstanceToContext from "./PassInstanceToContext"
 import InstanceAsPropsAndContext from "./InstanceAsPropAndContex"
+import PassProp from "./PassProp"
 
 const options = {
     CounterModule: {
@@ -26,6 +27,10 @@ const options = {
         name: "InstanceAsPropsAndContext",
         view: InstanceAsPropsAndContext,
         props: { instanceId: "instance1" },
+    },
+    PassProp: {
+        name: "PassProp",
+        view: PassProp,
     },
 }
 
