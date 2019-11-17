@@ -130,6 +130,51 @@ describe("## Redux-MVC connect", () => {
         expect(wrapper.find("#div").text()).toBe("1")
     })
 
+    // check issue with enzime, or check working example PassProp
+    it.skip("Should pass a prop", () => {
+        const Div = connect()(props => <div id="div">{props.sum}</div>)
+        const App = createContext({
+            module: pageModule,
+        })(({ children }) => <div>{children}</div>)
+
+        const wrapper = mount(<Div sum={1} />, { wrappingComponent: App })
+        expect(wrapper.find("#div").text()).toBe("1")
+
+        wrapper.setProps({ sum: 2 })
+        expect(wrapper.find("#div").text()).toBe("2")
+    })
+
+    // check issue with enzime, or check working example PassProp, fails when context is added
+    it.skip("Test", () => {
+        const makeHoc = () => Wrapped =>
+            class Div extends Component {
+                static contextType = StoreManager
+                constructor(props) {
+                    super(props)
+                    this.computedProps = props
+                }
+                shouldComponentUpdate(props) {
+                    console.log("update", props)
+                    this.computedProps = props
+                    return true
+                }
+                render() {
+                    console.log("render", this.computedProps)
+                    return <Wrapped {...this.computedProps} />
+                }
+            }
+
+        const Div = makeHoc()(props => <div id="div">{props.sum}</div>)
+        const App = createContext({
+            module: pageModule,
+        })(({ children }) => <div>{children}</div>)
+        const wrapper = mount(<Div sum={1} />, { wrappingComponent: App })
+        expect(wrapper.find("#div").text()).toBe("1")
+
+        wrapper.setProps({ sum: 2 })
+        expect(wrapper.find("#div").text()).toBe("2")
+    })
+
     it("Should pass the connected action", () => {
         const Div = connect(
             null,
@@ -280,5 +325,115 @@ describe("## Redux-MVC connect", () => {
                 count: 10,
             },
         })
+    })
+
+    it("Should re-render once when the state is updated", () => {
+        let rendered = 0
+
+        const Div = connect(
+            { fixedCount: getters.fixedCount },
+            props => ({
+                onClick: (_, ...params) =>
+                    CounterActions.setCount(props.fixedCount, ...params),
+            })
+        )(props => {
+            rendered += 1
+            return <div id="div" onClick={props.onClick} />
+        })
+
+        const App = createContext({
+            module: pageModule,
+        })(({ children }) => <div>{children}</div>)
+
+        const wrapper = mount(
+            <App>
+                <Div />
+            </App>
+        )
+
+        rendered = 0
+        const instance = wrapper.instance()
+        instance.store.dispatch(actions.setFixedCount(10))
+
+        expect(rendered).toEqual(1)
+    })
+
+    it("Should re-render once if props change", () => {
+        let rendered = 0
+
+        const Div = connect(
+            { fixedCount: getters.fixedCount },
+            props => ({
+                onClick: (_, ...params) =>
+                    CounterActions.setCount(props.fixedCount, ...params),
+            })
+        )(props => {
+            rendered += 1
+            return <div id="div" onClick={props.onClick} />
+        })
+
+        const App = createContext({
+            module: pageModule,
+        })(({ children }) => <div>{children}</div>)
+
+        const wrapper = mount(<Div text="hola" />, { wrappingComponent: App })
+
+        rendered = 0
+        wrapper.setProps({ text: "chau" })
+
+        expect(rendered).toEqual(1)
+    })
+
+    it("Should not re-render if the updated state is not observed", () => {
+        let rendered = 0
+
+        const Div = connect(
+            { fixedCount: getters.fixedCount },
+            props => ({
+                onClick: (_, ...params) =>
+                    CounterActions.setCount(props.fixedCount, ...params),
+            })
+        )(props => {
+            rendered += 1
+            return <div id="div" onClick={props.onClick} />
+        })
+
+        const App = createContext({
+            module: pageModule,
+        })(({ children }) => <div>{children}</div>)
+
+        const wrapper = mount(
+            <App>
+                <Div />
+            </App>
+        )
+
+        rendered = 0
+        const instance = wrapper.instance()
+        instance.store.dispatch(actions.delete())
+
+        expect(rendered).toEqual(0)
+    })
+
+    // check issue with enzime, or check working example PassProp
+    it.skip("Getters should be called if props change", () => {
+        const fixedCount = jest.fn(() => 10)
+        const mapDispatch = jest.fn(() => ({ onClick: noop }))
+
+        const Div = connect(
+            { fixedCount: fixedCount },
+            mapDispatch
+        )(props => <div id="div" onClick={props.onClick} />)
+
+        const App = createContext({
+            module: pageModule,
+        })(({ children }) => <div>{children}</div>)
+
+        const wrapper = mount(<Div text="hola" />, { wrappingComponent: App })
+
+        expect(fixedCount.mock.calls.length).toBe(1)
+
+        wrapper.setProps({ text: "chau" })
+        expect(fixedCount.mock.calls.length).toBe(2)
     })
 })
