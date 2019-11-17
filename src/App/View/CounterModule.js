@@ -2,12 +2,12 @@ import React from "react"
 import { createContext, connect } from "redux-mvc"
 
 import counterModule from "ui-kit/Counter"
-import { selectors } from "ui-kit/Counter/model"
+import { getters } from "ui-kit/Counter/model"
 import Counter from "ui-kit/Counter/View"
 
 import { Row, Column, StateFormatter, CodeViewer } from "./Common"
 
-const State = connect({ state: selectors.module })(StateFormatter)
+const State = connect({ state: getters.module })(StateFormatter)
 
 const model = `
 ------------ ui-kit/Counter/model.js -------------------------
@@ -28,9 +28,9 @@ const model = createModel({
     namespace: "Counter",
 })
 
-const { actions, selectors } = model
+const { actions, getters } = model
 
-export { actions, selectors }
+export { actions, getters }
 
 export default model
 `
@@ -60,10 +60,10 @@ import { connect } from "redux-mvc"
 
 import { noop } from "redux-mvc/utils"
 
-import { selectors, actions } from "ui-kit/Counter/model"
+import { getters, actions } from "ui-kit/Counter/model"
 
 const decorate = connect(
-    { count: selectors.count },
+    { count: getters.count },
     { add: actions.add, reset: actions.reset }
 )
 

@@ -30,9 +30,6 @@ export const connect = (s, a) => {
     return WrappedComponent => {
         class WithReduxMVCConnect extends Component {
             static contextType = StoreManager
-            state = {
-                stateProps: {},
-            }
             getStore() {
                 return this.context.instances[this.context.currentInstance]
             }
@@ -103,6 +100,7 @@ export const connect = (s, a) => {
                     props,
                     this.context.instanceId
                 )
+
                 for (const key in nextProps) {
                     if (nextProps[key] !== this.computedProps[key]) {
                         this.computedProps = nextProps

@@ -14,8 +14,8 @@ const model = createModel({
     namespace: "Counter",
 })
 
-const { actions, selectors } = model
+const { actions, getters } = model
 
-export { actions, selectors }
+export { actions, getters }
 
 export default model

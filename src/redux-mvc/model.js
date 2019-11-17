@@ -76,8 +76,8 @@ export const createModel = ({
         {}
     )
 
-    const actions = mergeAll([setActions, customActions]) // TODO rename, actions are not handlers
-    const selectors = Object.keys(iniState).reduce(
+    const actions = mergeAll([setActions, customActions])
+    const getters = Object.keys(iniState).reduce(
         (acc, key) => ({
             ...acc,
             [key]: (state, props = {}) => {
@@ -103,7 +103,7 @@ export const createModel = ({
     return {
         reducers: handlers,
         actions,
-        selectors,
+        getters,
         iniState: { [namespace]: { [DEFAULT_INSTANCE_ID]: iniState } },
         namespace,
         namespaces: [namespace],

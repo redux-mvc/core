@@ -2,12 +2,12 @@ import React from "react"
 import { createContext, connect } from "redux-mvc"
 
 import counterModule from "ui-kit/Counter"
-import { selectors } from "ui-kit/Counter/model"
+import { getters } from "ui-kit/Counter/model"
 import Counter from "ui-kit/Counter/View"
 
 import { Row, Column, StateFormatter, CodeViewer } from "./Common"
 
-const State = connect({ state: selectors.module })(StateFormatter)
+const State = connect({ state: getters.module })(StateFormatter)
 
 const layout = `
 ------------ App/View/InstanceAsPropAndContext.js -----------

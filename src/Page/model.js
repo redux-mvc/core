@@ -7,12 +7,13 @@ const model = createModel({
     },
     reducers: {
         create: R.always({ created: true }),
+        delete: R.always({ created: false }),
     },
     namespace: "App",
 })
 
-const { actions, selectors } = model
+const { actions, getters } = model
 
-export { actions, selectors }
+export { actions, getters }
 
 export default model

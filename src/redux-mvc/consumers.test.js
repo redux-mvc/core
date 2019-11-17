@@ -1,18 +1,21 @@
 import * as R from "ramda"
 
-import React from "react"
+import React, { Component } from "react"
 import { mount } from "enzyme"
 
+import { StoreManager } from "./context"
 import { createContext } from "./providers"
 import { connect } from "./consumers"
 
 import pageModule from "Page"
-import { actions, selectors } from "Page/model"
+import { actions, getters } from "Page/model"
 
 import {
     actions as CounterActions,
-    selectors as CounterSelectors,
+    getters as CounterGetters,
 } from "ui-kit/Counter/model"
+
+import { noop } from "redux-mvc/utils"
 
 describe("## Redux-MVC connect", () => {
     it("Should pass the global instance as props", () => {
@@ -54,7 +57,7 @@ describe("## Redux-MVC connect", () => {
             createContext({
                 module: pageModule,
             }),
-            connect({ count: CounterSelectors.count })
+            connect({ count: CounterGetters.count })
         )
 
         const App = decorate(Div)
@@ -64,7 +67,7 @@ describe("## Redux-MVC connect", () => {
     })
 
     it("Should re-render when the state is updated", () => {
-        const Div = connect({ count: CounterSelectors.count })(props => (
+        const Div = connect({ count: CounterGetters.count })(props => (
             <div id="div">{props.count}</div>
         ))
         const App = createContext({
@@ -86,7 +89,7 @@ describe("## Redux-MVC connect", () => {
     })
 
     it("Should pass the connected state from the global instance", () => {
-        const Div = connect({ count: CounterSelectors.count })(props => (
+        const Div = connect({ count: CounterGetters.count })(props => (
             <div id="div">{props.count}</div>
         ))
         const App = createContext({
@@ -107,7 +110,7 @@ describe("## Redux-MVC connect", () => {
     })
 
     it("Should pass the connected state from the instance prop", () => {
-        const Div = connect({ count: CounterSelectors.count })(props => (
+        const Div = connect({ count: CounterGetters.count })(props => (
             <div id="div">{props.count}</div>
         ))
         const App = createContext({
@@ -244,7 +247,7 @@ describe("## Redux-MVC connect", () => {
 
     it("Should dispatch the updated fixedCount", () => {
         const Div = connect(
-            { fixedCount: selectors.fixedCount },
+            { fixedCount: getters.fixedCount },
             props => ({
                 onClick: (_, ...params) =>
                     CounterActions.setCount(props.fixedCount, ...params),

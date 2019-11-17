@@ -9,8 +9,8 @@ const model = createModel({
     namespace: "SearchBar",
 })
 
-const { actions, selectors } = model
+const { actions, getters } = model
 
-export { actions, selectors }
+export { actions, getters }
 
 export default model

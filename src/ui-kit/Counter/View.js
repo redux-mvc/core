@@ -3,10 +3,10 @@ import { connect } from "redux-mvc"
 
 import { noop } from "redux-mvc/utils"
 
-import { selectors, actions } from "ui-kit/Counter/model"
+import { getters, actions } from "ui-kit/Counter/model"
 
 const decorate = connect(
-    { count: selectors.count },
+    { count: getters.count },
     { add: actions.add, reset: actions.reset }
 )
 

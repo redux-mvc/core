@@ -1,17 +1,18 @@
 import React from "react"
 import { connect } from "redux-mvc"
 
-import { actions, selectors } from "../model"
+import { actions, getters } from "../model"
 
 import EraseButton from "./ErraseButton"
 
 const decorate = connect(
-    { search: selectors.search },
+    { search: getters.search },
     { onChange: actions.setSearch }
 )
 
-const SearchBar = ({ search, onChange }) => (
+const SearchBar = ({ label = "", search, onChange }) => (
     <>
+        {label && <div>{label}</div>}
         <input value={search} onChange={e => onChange(e.target.value)} />
         <EraseButton />
     </>
