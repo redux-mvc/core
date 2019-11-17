@@ -9,13 +9,12 @@
     "private": true,
     "scripts": {
         "dev": "node -r dotenv/config node_modules/.bin/webpack-dev-server --open --config ./webpack.dev.js --hot",
-        "clean": "rm -rf dist",
         "lint": "eslint --cache .",
         "build:dev": "webpack --config ./webpack.dev.js",
         "build:prod": "NODE_ENV=production webpack --config ./webpack.prod.js",
         "build:lib": "NODE_ENV=production webpack --config ./webpack.lib.js",
         "test": "jest",
-        "all": "yarn --install --pure-lockfile && yarn clean && yarn lint && yarn test && yarn build:lib"
+        "all": "yarn --install --pure-lockfile && yarn lint && yarn test && yarn build:lib"
     },
     "peerDependencies": {
         "react": ">=16",
@@ -30,6 +29,7 @@
         "babel-eslint": "^10.0.2",
         "babel-loader": "^8.0.6",
         "babel-plugin-transform-class-properties": "^6.24.1",
+        "clean-webpack-plugin": "^3.0.0",
         "compression-webpack-plugin": "^3.0.0",
         "dotenv": "^8.0.0",
         "enzyme": "^3.10.0",
