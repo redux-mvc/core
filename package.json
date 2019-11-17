@@ -9,7 +9,7 @@
     "private": true,
     "scripts": {
         "dev": "node -r dotenv/config node_modules/.bin/webpack-dev-server --open --config ./webpack.dev.js --hot",
-        "lint": "eslint --cache .",
+        "lint": "eslint",
         "build:dev": "webpack --config ./webpack.dev.js",
         "build:prod": "NODE_ENV=production webpack --config ./webpack.prod.js",
         "build:lib": "NODE_ENV=production webpack --config ./webpack.lib.js",
@@ -44,6 +44,7 @@
         "html-webpack-plugin": "^3.2.0",
         "husky": "^3.0.9",
         "jest": "^24.8.0",
+        "jest-junit": "^9.0.0",
         "prettier": "^1.14.2",
         "ramda": "^0.26.1",
         "react": ">=16",

@@ -19,10 +19,18 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
-      - run: npm run lint
-      - run: npm run test -- --coverage
+      - run:
+          name: "Static analysis"
+          command: yarn lint --format junit -o reports/junit/js-lint-results.xml ./src
+      - run:
+          name: "Unit tests suite"
+          command: yarn test --ci --runInBand --coverage --reporters=default --reporters=jest-junit
+          environment:
+                  JEST_JUNIT_OUTPUT_DIR: "reports/junit/js-test-results.xml"
       - store_test_results:
-          path: ./results
+          path: reports/junit
+      - store_artifacts:
+          path: reports
 
   build:
     docker:

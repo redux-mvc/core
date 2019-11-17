@@ -13,4 +13,5 @@ module.exports = {
             "<rootDir>/src/tests/fileMock.js",
         "\\.(css|less|scss)$": "identity-obj-proxy",
     },
+    reporters: ["default", "jest-junit"],
 }
