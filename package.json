@@ -2,7 +2,8 @@
     "name": "redux-mvc",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
+    "main": "dist/redux-mvc.js",
+    "module": "src/redux-mvc/index.js",
     "author": "Gonzalo Rafael Acosta",
     "license": "MIT",
     "private": true,
@@ -10,27 +11,15 @@
         "dev": "node -r dotenv/config node_modules/.bin/webpack-dev-server --open --config ./webpack.dev.js --hot",
         "clean": "rm -rf dist",
         "lint": "eslint --cache .",
-        "build:dev": "node -r dotenv/config node_modules/.bin/webpack --config ./webpack.dev.js",
-        "build:prod": "NODE_ENV=production node -r dotenv/config node_modules/.bin/webpack --config ./webpack.prod.js",
-        "start": "node -r dotenv/config node_modules/.bin/pm2 start ecosystem.config.js",
-        "stop": "pm2 stop ecosystem.config.js",
+        "build:dev": "webpack --config ./webpack.dev.js",
+        "build:prod": "NODE_ENV=production webpack --config ./webpack.prod.js",
+        "build:lib": "NODE_ENV=production webpack --config ./webpack.lib.js",
         "test": "jest",
-        "test:e2e": "cypress run",
-        "all": "yarn --install --pure-lockfile && yarn clean && yarn lint && yarn test && yarn build:prod && yarn start && yarn test:e2e"
+        "all": "yarn --install --pure-lockfile && yarn clean && yarn lint && yarn test && yarn build:lib"
     },
-    "dependencies": {
-        "@material-ui/core": "^4.2.1",
-        "@material-ui/icons": "^4.2.1",
-        "@material-ui/styles": "^4.2.1",
-        "compression": "^1.7.4",
-        "express": "^4.17.1",
-        "i18next": "^17.0.6",
-        "ramda": "^0.26.1",
+    "peerDependencies": {
         "react": ">=16",
-        "react-dom": "^16.8.6",
-        "react-redux": "^7.1.0",
-        "redux": "^4.0.1",
-        "redux-saga": "^1.0.5"
+        "redux": "^4.0.1"
     },
     "devDependencies": {
         "@babel/core": "^7.4.5",
@@ -41,33 +30,34 @@
         "babel-eslint": "^10.0.2",
         "babel-loader": "^8.0.6",
         "babel-plugin-transform-class-properties": "^6.24.1",
-        "clean-webpack-plugin": "^3.0.0",
         "compression-webpack-plugin": "^3.0.0",
-        "copy-webpack-plugin": "^5.0.3",
-        "cypress": "^3.4.0",
         "dotenv": "^8.0.0",
         "enzyme": "^3.10.0",
         "enzyme-react-16": "^1.0.0",
         "eslint": "^5.16.0",
         "eslint-config-prettier": "^6.0.0",
-        "eslint-plugin-cypress": "^2.6.0",
         "eslint-plugin-import": "^2.18.0",
         "eslint-plugin-jest": "^22.13.0",
         "eslint-plugin-jsx-a11y": "^6.2.3",
         "eslint-plugin-prettier": "^3.1.0",
         "eslint-plugin-react": "^7.14.2",
-        "file-loader": "^4.1.0",
         "html-webpack-plugin": "^3.2.0",
+        "husky": "^3.0.9",
         "jest": "^24.8.0",
-        "normalize.css": "^8.0.1",
-        "pm2": "^3.5.1",
         "prettier": "^1.14.2",
+        "ramda": "^0.26.1",
+        "react": ">=16",
+        "react-dom": "^16.8.6",
         "react-hot-loader": "^4.12.0",
+        "redux-saga": "^1.0.5",
         "webpack": "^4.36.1",
         "webpack-cli": "^3.3.6",
         "webpack-dev-server": "^3.7.2",
-        "webpack-manifest-plugin": "^2.0.4",
-        "webpack-merge": "^4.2.1",
-        "workbox-webpack-plugin": "^4.3.1"
+        "webpack-merge": "^4.2.1"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "./bin/lint-staged.sh"
+        }
     }
 }

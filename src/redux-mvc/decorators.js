@@ -1,4 +1,3 @@
-import * as R from "ramda"
 import createSagaMiddleware from "redux-saga"
 import { createStore, applyMiddleware, compose } from "redux"
 import {
@@ -58,7 +57,7 @@ export const addObserveGlobal = ({
     dispatchToGlobal = noop,
 }) => module => ({
     ...module,
-    observedDomains: R.length(observedDomains)
+    observedDomains: observedDomains.length
         ? observedDomains
         : module.observedDomains,
     dispatchToGlobal:
@@ -71,7 +70,7 @@ export const addSagaMiddleware = rootSaga => module => {
     const newModule = {
         ...module,
         sagas: [...(module.sagas || []), rootSaga],
-        middleware: R.append(sagaMiddleware, module.middleware || []),
+        middleware: [...(module.middleware || []), sagaMiddleware],
     }
 
     newModule.on("run", () => {
@@ -107,12 +106,8 @@ export const addCreateStore = options => module => ({
     },
 })
 
-const makeDispatchToGlobal = namespaces =>
-    R.compose(
-        R.not,
-        R.test(new RegExp(R.join("|", namespaces))),
-        R.prop("type")
-    )
+const makeDispatchToGlobal = namespaces => action =>
+    !action.type.test(new RegExp(namespaces.join("|")))
 
 export const merge = right => left => ({
     ...left,
