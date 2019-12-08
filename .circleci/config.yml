@@ -51,19 +51,80 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
+  docs-build:
+    docker:
+      - image: node:8.10.0
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: yarn install --pure-lockfile
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
+      - run:
+          name: Build Docs
+          command: yarn build:storybook
+      - persist_to_workspace:
+          root: docs/
+          paths: html
+      - store_artifacts:
+          path: docs
+
+  docs-deploy:
+    docker:
+      - image: node:8.10.0
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - add_ssh_keys:
+          fingerprints:
+            - "d8:92:3b:19:04:03:a9:29:cb:bc:72:c6:d7:2e:0b:cc"
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: yarn install --pure-lockfile
+      - attach_workspace:
+          at: docs/
+      - run:
+          name: Install and configure dependencies
+          command: |
+            npm install -g --silent gh-pages@2.0.1
+            git config user.email "ci-build@circleci.com"
+            git config user.name "ci-build"
+      - run:
+          name: Deploy docs to gh-pages branch
+          command: gh-pages --message "[Storybook] Deploy [skip ci]" --dist docs/html
+
 workflows:
   version: 2
   master:
     jobs:
-      - unit-test:
-          filters:
-            branches:
-              only:
-                - master
+      - unit-test
       - build:
-          filters:
-            branches:
-              only:
-                - master
           requires:
             - unit-test
+
+      - docs-build:
+          filters:
+            branches:
+              only:
+                - master
+                - deploy-storybook
+          requires:
+            - unit-test
+
+      - docs-deploy:
+          filters:
+            branches:
+              only:
+                - deploy-storybook
+          requires:
+            - docs-build

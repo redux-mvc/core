@@ -11,7 +11,7 @@
         "dev": "node -r dotenv/config node_modules/.bin/webpack-dev-server --open --config ./webpack.dev.js --hot",
         "lint": "eslint",
         "build:dev": "webpack --config ./webpack.dev.js",
-        "build:prod": "NODE_ENV=production webpack --config ./webpack.prod.js",
+        "build:storybook": "build-storybook -c .storybook -o ./docs/html",
         "build:lib": "NODE_ENV=production webpack --config ./webpack.lib.js",
         "test": "jest",
         "all": "yarn --install --pure-lockfile && yarn lint && yarn test --coverage && yarn build:lib",
