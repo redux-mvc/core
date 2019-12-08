@@ -1,4 +1,3 @@
-import createSagaMiddleware from "redux-saga"
 import { createStore, applyMiddleware, compose } from "redux"
 import {
     mergeAll,
@@ -64,25 +63,6 @@ export const addObserveGlobal = ({
         dispatchToGlobal !== noop ? dispatchToGlobal : module.dispatchToGlobal,
 })
 
-export const addSagaMiddleware = rootSaga => module => {
-    const sagaMiddleware = createSagaMiddleware()
-
-    const newModule = {
-        ...module,
-        sagas: [...(module.sagas || []), rootSaga],
-        middleware: [...(module.middleware || []), sagaMiddleware],
-    }
-
-    newModule.on("run", () => {
-        newModule.sagas.forEach(saga => sagaMiddleware.run(saga))
-    })
-    newModule.on("cancel", () => {
-        sagaMiddleware.cancel()
-    })
-
-    return newModule
-}
-
 const defaultCompose = () => compose
 
 const composeEnhancers =
@@ -100,30 +80,53 @@ export const addCreateStore = options => module => ({
             module.iniState,
             composeEnhancers({
                 name: module.namespace,
+                serialize: {
+                    replacer: (key, value) => {
+                        if (
+                            value &&
+                            value.dispatchConfig &&
+                            value._targetInst // eslint-disable-line
+                        ) {
+                            return "[EVENT]"
+                        }
+                        return value
+                    },
+                },
                 ...options,
             })(applyMiddleware(...middleware))
         )
     },
 })
 
-const makeDispatchToGlobal = namespaces => action =>
-    !action.type.test(new RegExp(namespaces.join("|")))
+const makeDispatchToGlobal = namespaces => {
+    const re = new RegExp(`(${namespaces.join("|")})\/`)
+    return action => !action.type.test(re)
+}
 
-export const merge = right => left => ({
-    ...left,
-    iniState: { ...right.iniState, ...left.iniState },
-    reducers: { ...right.reducers, ...left.reducers },
-    sagas: [...(right.sagas || []), ...(left.sagas || [])],
-    namespaces: [...(right.namespaces || []), ...(left.namespaces || [])],
-    observedDomains: [
-        ...(right.observedDomains || []),
-        ...(left.observedDomains || []),
-    ],
-    dispatchToGlobal: makeDispatchToGlobal([
-        ...(right.namespaces || []),
-        ...(left.namespaces || []),
-    ]),
-})
+export const merge = right => left => {
+    const modules = {
+        ...(right.modules || {}),
+        [left.namespace]: left,
+    }
+    const namespaces = Object.values(modules).map(module => module.namespace)
+    const observedDomains = Object.values(modules).reduce(
+        (observedDomains, module) => [
+            ...observedDomains,
+            ...(module.observedDomains || []),
+        ],
+        []
+    )
+
+    return {
+        ...left,
+        modules,
+        iniState: { ...right.iniState, ...left.iniState },
+        reducers: { ...right.reducers, ...left.reducers },
+        namespaces,
+        observedDomains,
+        dispatchToGlobal: makeDispatchToGlobal(namespaces),
+    }
+}
 
 export const addEvents = () => module => {
     let listeners = {}

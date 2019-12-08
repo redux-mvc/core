@@ -1,11 +1,7 @@
 import * as R from "ramda"
-import {
-    merge,
-    addCreateStore,
-    addSagaMiddleware,
-    addReducer,
-    addEvents,
-} from "redux-mvc"
+import { merge, addCreateStore, addReducer, addEvents } from "redux-mvc"
+
+import { addSagaMiddleware } from "App/utils"
 
 import model from "./model.js"
 import searchBar from "ui-kit/SearchBar"

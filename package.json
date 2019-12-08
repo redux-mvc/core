@@ -14,7 +14,9 @@
         "build:prod": "NODE_ENV=production webpack --config ./webpack.prod.js",
         "build:lib": "NODE_ENV=production webpack --config ./webpack.lib.js",
         "test": "jest",
-        "all": "yarn --install --pure-lockfile && yarn lint && yarn test --coverage && yarn build:lib"
+        "all": "yarn --install --pure-lockfile && yarn lint && yarn test --coverage && yarn build:lib",
+        "storybook": "start-storybook",
+        "hooks:pre-commit": "./bin/lint-staged.sh && npm run test"
     },
     "peerDependencies": {
         "react": ">=16",
@@ -26,6 +28,7 @@
         "@babel/preset-env": "^7.4.5",
         "@babel/preset-react": "^7.0.0",
         "@hot-loader/react-dom": "^16.8.6",
+        "@storybook/react": "^5.2.6",
         "babel-eslint": "^10.0.2",
         "babel-loader": "^8.0.6",
         "babel-plugin-transform-class-properties": "^6.24.1",
@@ -41,6 +44,7 @@
         "eslint-plugin-jsx-a11y": "^6.2.3",
         "eslint-plugin-prettier": "^3.1.0",
         "eslint-plugin-react": "^7.14.2",
+        "highlight.js": "^9.16.2",
         "html-webpack-plugin": "^3.2.0",
         "husky": "^3.0.9",
         "jest": "^24.8.0",
@@ -51,6 +55,7 @@
         "react-dom": "^16.8.6",
         "react-hot-loader": "^4.12.0",
         "redux-saga": "^1.0.5",
+        "storybook-readme": "^5.0.8",
         "webpack": "^4.36.1",
         "webpack-cli": "^3.3.6",
         "webpack-dev-server": "^3.7.2",
@@ -58,7 +63,7 @@
     },
     "husky": {
         "hooks": {
-            "pre-commit": "./bin/lint-staged.sh"
+            "pre-commit": "npm run hooks:pre-commit"
         }
     }
 }

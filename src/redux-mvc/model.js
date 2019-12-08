@@ -44,8 +44,8 @@ export const createModel = ({
         const type = `${namespace + "/"}${key}`
 
         const action = (payload, props = {}, error = false) => ({
-            payload,
             ...props,
+            payload,
             error,
             type,
             namespace,

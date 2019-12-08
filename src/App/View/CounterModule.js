@@ -76,10 +76,10 @@ const Counter = ({
 }) => (
     <div style={{ display: "flex", ...style }}>
         <div style={{ marginRight: 10 }}>{instanceId}:</div>
-        <button style={{ marginRight: 10 }} onClick={() => add()}>
+        <button style={{ marginRight: 10 }} onClick={add}>
             add
         </button>
-        <button style={{ marginRight: 10 }} onClick={() => reset()}>
+        <button style={{ marginRight: 10 }} onClick={reset}>
             reset
         </button>
         <div>{count}</div>

@@ -1,5 +1,7 @@
 import React, { useState } from "react"
 
+import hljs from "highlight.js/lib/highlight"
+
 export const Row = ({ children, style = {} }) => (
     <div style={{ display: "flex", ...style }}>{children}</div>
 )
@@ -16,25 +18,64 @@ export const Column = ({ children, style = {} }) => (
     </div>
 )
 
+const codeStyle = {
+    color: "black",
+    background: "#f6f8fa",
+    "text-shadow": "",
+    fontSize: "85%",
+    fontFamily:
+        "SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace",
+    textAlign: "left",
+    whiteSpace: "pre",
+    wordSpacing: "normal",
+    wordBreak: "normal",
+    wordWrap: "normal",
+    lineHeight: 1.5,
+    tabSize: 4,
+    hyphens: "none",
+    borderRadius: 5,
+    padding: 10,
+}
+
+export const codeBoxStyle = {
+    borderRadius: 5,
+    border: "solid 1px black",
+    padding: 10,
+    marginBottom: 10,
+    minHeight: 250,
+}
+
 export const StateFormatter = ({ state, style }) => (
-    <Column style={{ alignItems: "center", ...style }}>
-        <Row style={{ marginBottom: 20 }}>State</Row>
-        <pre>
-            <code>{JSON.stringify(state, null, 2)}</code>
-        </pre>
+    <Column
+        style={{
+            alignItems: "center",
+            ...codeBoxStyle,
+            ...style,
+        }}
+    >
+        <Row>Module State:</Row>
+        <div
+            style={{ ...codeStyle, background: "transparent" }}
+            dangerouslySetInnerHTML={{
+                __html: hljs.highlight("json", JSON.stringify(state, null, 2))
+                    .value,
+            }}
+        ></div>
     </Column>
 )
 
 export const CodeFormatter = ({ code }) => (
     <Column>
-        <pre>
-            <code>{code}</code>
-        </pre>
+        <div
+            style={codeStyle}
+            dangerouslySetInnerHTML={{
+                __html: hljs.highlight("javascript", code).value,
+            }}
+        ></div>
     </Column>
 )
 
-export const CodeViewer = ({ files, style }) => {
-    const [view, setView] = useState("list")
+export const CodeViewer = ({ files, style, view = "tabs" }) => {
     const [tab, setTab] = useState(files[0].name)
 
     const file = files.find(f => f.name === tab)
@@ -44,19 +85,14 @@ export const CodeViewer = ({ files, style }) => {
         ) : (
             files.map(f => <CodeFormatter code={f.code} key={f.name} />)
         )
-    const viewOptions = ["list", "tabs"]
     return (
         <Column style={{ ...style }}>
-            <Row style={{ marginBottom: 10 }}>
-                <select onChange={e => setView(e.target.value)} value={view}>
-                    {viewOptions.map(option => (
-                        <option value={option} key={option}>
-                            {option}
-                        </option>
-                    ))}
-                </select>
-            </Row>
-            <Row style={{ visibility: view === "tabs" ? "visible" : "hidden" }}>
+            <Row
+                style={{
+                    visibility: view === "tabs" ? "visible" : "hidden",
+                    margin: "10px 0px",
+                }}
+            >
                 {files.map(f => (
                     <button
                         onClick={() => setTab(f.name)}
@@ -68,9 +104,7 @@ export const CodeViewer = ({ files, style }) => {
                     </button>
                 ))}
             </Row>
-            <Column style={{ overflowY: "auto", maxHeight: "75vh" }}>
-                {renderCode}
-            </Column>
+            <Column style={{ overflowY: "auto" }}>{renderCode}</Column>
         </Column>
     )
 }
