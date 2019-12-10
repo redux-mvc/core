@@ -67,8 +67,8 @@ export const createContext = ({
                         context.store
                     )
 
-                    module.on("run", subscribe)
-                    module.on("cancel", unsubscribe)
+                    module.on("start", subscribe)
+                    module.on("stop", unsubscribe)
                     bridgeMiddleware = middleware
                 }
 
@@ -81,11 +81,11 @@ export const createContext = ({
                 context.instances[instance] = store
             }
 
-            module.dispatch("run")
+            module.emit("start")
         }
 
         componentWillUnmount() {
-            module.dispatch("cancel")
+            module.emit("stop")
         }
 
         render() {

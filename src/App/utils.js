@@ -9,13 +9,13 @@ export const addSagaMiddleware = rootSaga => module => {
     const newModule = {
         ...module,
         sagas: [...(module.sagas || []), rootSaga],
-        middleware: [...(module.middleware || []), sagaMiddleware],
+        sagaMiddleware,
     }
 
-    newModule.on("run", () => {
+    newModule.on("start", () => {
         newModule.sagas.forEach(saga => sagaMiddleware.run(saga))
     })
-    newModule.on("cancel", () => {
+    newModule.on("stop", () => {
         sagaMiddleware.cancel()
     })
 

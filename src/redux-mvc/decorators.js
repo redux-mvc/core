@@ -60,7 +60,7 @@ export const addObserveGlobal = ({
         ? observedDomains
         : module.observedDomains,
     dispatchToGlobal:
-        dispatchToGlobal !== noop ? dispatchToGlobal : module.dispatchToGlobal,
+        dispatchToGlobal === noop ? module.dispatchToGlobal : dispatchToGlobal,
 })
 
 const defaultCompose = () => compose
@@ -105,8 +105,8 @@ const makeDispatchToGlobal = namespaces => {
 
 export const merge = right => left => {
     const modules = {
-        ...(right.modules || {}),
-        [left.namespace]: left,
+        ...(left.modules || {}),
+        [right.namespace]: right,
     }
     const namespaces = Object.values(modules).map(module => module.namespace)
     const observedDomains = Object.values(modules).reduce(
@@ -120,8 +120,8 @@ export const merge = right => left => {
     return {
         ...left,
         modules,
-        iniState: { ...right.iniState, ...left.iniState },
-        reducers: { ...right.reducers, ...left.reducers },
+        iniState: { ...left.iniState, ...right.iniState },
+        reducers: { ...left.reducers, ...right.reducers },
         namespaces,
         observedDomains,
         dispatchToGlobal: makeDispatchToGlobal(namespaces),
@@ -131,7 +131,8 @@ export const merge = right => left => {
 export const addEvents = () => module => {
     let listeners = {}
 
-    const dispatch = event => (listeners[event] || []).forEach(f => f())
+    const emit = (event, ...params) =>
+        (listeners[event] || []).forEach(f => f(...params))
     const on = (event, f) => {
         listeners[event] = [...(listeners[event] || []), f]
         return () => {
@@ -142,6 +143,6 @@ export const addEvents = () => module => {
     return {
         ...module,
         on,
-        dispatch,
+        emit,
     }
 }

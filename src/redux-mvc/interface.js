@@ -1,10 +1,10 @@
 export const moduleInterface = {
+    modules: [],
     iniState: {},
     reducers: {},
-    actions: {},
     namespace: "",
     namespaces: [],
     on() {},
-    dispatch() {},
+    emit() {},
     reducer() {},
 }

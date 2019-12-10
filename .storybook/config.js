@@ -14,6 +14,9 @@ hljs.registerLanguage("json", json)
 
 addDecorator(addReadme)
 addParameters({
+    options: {
+        showPanel: false,
+    },
     readme: {
         // You can set a code theme globally.
         codeTheme: "atom-one-light",
