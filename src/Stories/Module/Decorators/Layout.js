@@ -1,9 +1,9 @@
 import React from "react"
 import { createContext, connect } from "redux-mvc"
 
-import counterModule from "./index"
+import textModule, { moduleCode } from "./index"
 import { getters, modelCode } from "./model"
-import Counter, { viewCode } from "./View"
+import Text, { viewCode } from "./View"
 
 import {
     Row,
@@ -16,18 +16,19 @@ import {
 const State = connect({ state: getters.module })(StateFormatter)
 
 const files = [
+    { name: "index", code: moduleCode },
+    { name: "model", code: modelCode },
     {
         name: "view",
         code: viewCode,
     },
-    { name: "model", code: modelCode },
 ]
 
 const decorate = createContext({
-    module: counterModule,
+    module: textModule,
 })
 
-const CounterModule = ({ style }) => (
+const TextModule = ({ style }) => (
     <Row
         style={{
             alignItems: "center",
@@ -36,7 +37,7 @@ const CounterModule = ({ style }) => (
             ...style,
         }}
     >
-        <Counter />
+        <Text />
     </Row>
 )
 
@@ -48,7 +49,7 @@ const Layout = () => (
         }}
     >
         <Row style={{ marginLeft: 10 }}>
-            <CounterModule style={{ flex: 1, marginRight: 5 }} />
+            <TextModule style={{ flex: 1, marginRight: 5 }} />
             <State style={{ flex: 1, marginLeft: 5 }} />
         </Row>
         <CodeViewer files={files} style={{ flex: 1 }} />

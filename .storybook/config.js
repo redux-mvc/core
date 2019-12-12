@@ -23,6 +23,10 @@ addParameters({
     },
 })
 
-const loaderFn = () => [require(`../src/Stories/Model/model.stories.js`)]
+const loaderFn = () => [
+    require(`../src/Stories/Model/model.stories.js`),
+    require(`../src/Stories/Module/module.stories.js`),
+    require(`../src/Stories/Api/Model/model.stories.js`),
+]
 
 configure(loaderFn, module)

@@ -1,15 +1,17 @@
 import * as R from "ramda"
 import { createModel } from "redux-mvc"
 
+const iniState = {
+    count: 0,
+}
+
 const model = createModel({
-    iniState: {
-        text: "",
-    },
+    iniState,
     reducers: {
-        save: (state, { payload: text, meta, error }) =>
-            error ? state : { text: R.concat(meta.prefix, text) },
+        add: ({ count }) => ({ count: count + 1 }),
+        reset: R.always(iniState),
     },
-    namespace: "Text",
+    namespace: "Counter",
 })
 
 const { actions, getters } = model
@@ -21,15 +23,17 @@ export default model
 export const modelCode = `import * as R from "ramda"
 import { createModel } from "redux-mvc"
 
+const iniState = {
+    count: 0,
+}
+
 const model = createModel({
-    iniState: {
-        text: "",
-    },
+    iniState,
     reducers: {
-        save: (state, { payload: text, meta, error }) =>
-            error ? state : { text: R.concat(meta.prefix, text) },
+        add: ({ count }) => ({ count: count + 1 }),
+        reset: R.always(iniState),
     },
-    namespace: "Text",
+    namespace: "Counter",
 })
 
 const { actions, getters } = model

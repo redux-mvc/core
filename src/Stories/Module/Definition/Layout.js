@@ -1,7 +1,7 @@
 import React from "react"
 import { createContext, connect } from "redux-mvc"
 
-import textModule from "./index"
+import textModule, { moduleCode } from "./index"
 import { getters, modelCode } from "./model"
 import Text, { viewCode } from "./View"
 
@@ -16,6 +16,7 @@ import {
 const State = connect({ state: getters.module })(StateFormatter)
 
 const files = [
+    { name: "index", code: moduleCode },
     { name: "model", code: modelCode },
     {
         name: "view",

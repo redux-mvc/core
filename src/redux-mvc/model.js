@@ -94,7 +94,7 @@ export const createModel = ({
                 const instanceId = getSelectorInstanceId(props)
                 return pathOr(iniState, [namespace, instanceId], state)
             },
-            identity: state => propOr(iniState, namespace, state),
+            namespace: state => propOr(iniState, namespace, state),
             module: s => s,
         }
     )
