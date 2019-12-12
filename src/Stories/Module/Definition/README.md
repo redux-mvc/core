@@ -6,7 +6,7 @@
 
 - The minimum module requirements are:
 
-  1. Adding an *emit* and *listen* methods
+  1. Adding an *emit* and *on* methods for module lifecycle
   2. Adding the *reducer*
   3. Adding a *createStore* method
 

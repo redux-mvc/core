@@ -6,6 +6,7 @@ import {
     prop,
     getActionInstanceId,
     noop,
+    identity,
 } from "./utils"
 
 import { REDUX_MVC_GLOBAL_UPDATE } from "./constants"
@@ -68,13 +69,13 @@ const defaultCompose = () => compose
 const composeEnhancers =
     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || defaultCompose // eslint-disable-line no-underscore-dangle
 
-export const addCreateStore = options => module => ({
+export const addCreateStore = (options = {}) => module => ({
     ...module,
     createStore({ bridgeMiddleware }) {
         const middleware = [
             ...(module.middleware || []),
             bridgeMiddleware,
-        ].filter(x => x)
+        ].filter(identity)
         return createStore(
             module.reducer,
             module.iniState,
