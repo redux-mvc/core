@@ -4,6 +4,9 @@ import { storiesOf } from "@storybook/react"
 import Definition from "./Definition/Layout.js"
 import DefinitionDocs from "./Definition/README.md"
 
+import Composition from "./Composition/Layout.js"
+import CompositionDocs from "./Composition/README.md"
+
 storiesOf("2 - Module", module)
     .addParameters({
         readme: {
@@ -13,5 +16,10 @@ storiesOf("2 - Module", module)
     .add("Definition", () => <Definition />, {
         readme: {
             content: DefinitionDocs,
+        },
+    })
+    .add("Composition", () => <Composition />, {
+        readme: {
+            content: CompositionDocs,
         },
     })

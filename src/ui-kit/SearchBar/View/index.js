@@ -10,12 +10,12 @@ const decorate = connect(
     { onChange: actions.setSearch }
 )
 
-const SearchBar = ({ label = "", search, onChange }) => (
-    <>
+const SearchBar = ({ label = "", search, onChange, style }) => (
+    <div style={style}>
         {label && <div>{label}</div>}
         <input value={search} onChange={e => onChange(e.target.value)} />
         <EraseButton />
-    </>
+    </div>
 )
 
 export default decorate(SearchBar)
