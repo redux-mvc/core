@@ -7,6 +7,9 @@ import DefinitionDocs from "./Definition/README.md"
 import Composition from "./Composition/Layout.js"
 import CompositionDocs from "./Composition/README.md"
 
+import Instances from "./Instances/Layout.js"
+import InstancesDocs from "./Instances/README.md"
+
 storiesOf("2 - Module", module)
     .addParameters({
         readme: {
@@ -21,5 +24,10 @@ storiesOf("2 - Module", module)
     .add("Composition", () => <Composition />, {
         readme: {
             content: CompositionDocs,
+        },
+    })
+    .add("Instances", () => <Instances />, {
+        readme: {
+            content: InstancesDocs,
         },
     })

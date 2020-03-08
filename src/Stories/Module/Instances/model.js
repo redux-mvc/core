@@ -1,17 +1,12 @@
-import * as R from "ramda"
 import { createModel } from "redux-mvc"
 
 const iniState = {
-    count: 0,
+    loading: false,
 }
 
 const model = createModel({
     iniState,
-    reducers: {
-        add: ({ count }) => ({ count: count + 1 }),
-        reset: R.always(iniState),
-    },
-    namespace: "Counter",
+    namespace: "CounterAndSearchbar",
 })
 
 const { actions, getters } = model
@@ -20,21 +15,18 @@ export { actions, getters }
 
 export default model
 
-export const modelCode = `import * as R from "ramda"
+export const modelCode = `
 import { createModel } from "redux-mvc"
 
 const iniState = {
-    count: 0,
+    loading: false,
 }
 
 const model = createModel({
     iniState,
-    reducers: {
-        add: ({ count }) => ({ count: count + 1 }),
-        reset: R.always(iniState),
-    },
-    namespace: "Counter",
+    namespace: "CounterAndSearchbar",
 })
+
 
 const { actions, getters } = model
 
