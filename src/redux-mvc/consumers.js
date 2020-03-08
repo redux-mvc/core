@@ -5,18 +5,18 @@ import { StoreManager } from "./context"
 
 const createProxyAction = (proxy, store, that) => (
     payload,
-    params = { meta: {} },
+    props = {},
     error = false
 ) =>
     store.dispatch(
         proxy.actionProp(
             payload,
             {
-                ...params,
+                ...props,
                 meta: {
                     instanceId:
                         that.props.instanceId || that.context.instanceId,
-                    ...params.meta,
+                    ...(props.meta || {}),
                 },
             },
             error
@@ -44,9 +44,7 @@ export const connect = (s, a) => {
                 )
                 this.proxyActions = this.getProxyActions(
                     this.getStore(),
-                    typeof actions === "function"
-                        ? actions(this.computedProps)
-                        : actions
+                    actions
                 )
                 this.computedActions = Object.entries(this.proxyActions).reduce(
                     (acc, [key, { proxy }]) => {
@@ -104,17 +102,6 @@ export const connect = (s, a) => {
                 for (const key in nextProps) {
                     if (nextProps[key] !== this.computedProps[key]) {
                         this.computedProps = nextProps
-
-                        if (typeof actions === "function") {
-                            const newActions = actions(this.computedProps)
-                            Object.entries(this.proxyActions).forEach(
-                                ([key, proxyAction]) => {
-                                    if (newActions[key]) {
-                                        proxyAction.actionProp = newActions[key]
-                                    }
-                                }
-                            )
-                        }
                         return true
                     }
                 }
