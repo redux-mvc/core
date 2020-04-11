@@ -9,7 +9,7 @@ import {
     identity,
 } from "./utils"
 
-import { REDUX_MVC_GLOBAL_UPDATE } from "./constants"
+import { GLOBAL_UPDATE, DEFAULT_INSTANCE_ID } from "./constants"
 
 export const addReducer = () => module => ({
     ...module,
@@ -17,7 +17,7 @@ export const addReducer = () => module => ({
         if (action.type === "@@INIT") {
             return mergeAll([state, module.iniState])
         }
-        if (path(["meta", REDUX_MVC_GLOBAL_UPDATE], action)) {
+        if (path(["meta", GLOBAL_UPDATE], action)) {
             return mergeAll([state, prop(["payload"], action)])
         }
         const selectedReducer = module.reducers[action.type]
@@ -29,7 +29,7 @@ export const addReducer = () => module => ({
         const namespace = action.namespace
         const p = [namespace, instanceId]
         const oldState = pathOr(
-            path([namespace, "default"], module.iniState),
+            path([namespace, DEFAULT_INSTANCE_ID], module.iniState),
             p,
             state
         )
@@ -73,9 +73,10 @@ export const addCreateStore = (options = {}) => module => ({
     ...module,
     createStore({ bridgeMiddleware }) {
         const middleware = [
-            ...(module.middleware || []),
+            ...Object.values(module.middleware || {}),
             bridgeMiddleware,
         ].filter(identity)
+
         return createStore(
             module.reducer,
             module.iniState,

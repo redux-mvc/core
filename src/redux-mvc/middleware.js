@@ -1,13 +1,13 @@
 import * as R from "ramda"
 import { noop } from "./utils"
-import { REDUX_MVC_GLOBAL_UPDATE } from "./constants"
+import { GLOBAL_UPDATE } from "./constants"
 
 const makeSubscribe = ({ globalStore, observedDomains, store }) => {
     let lastState = globalStore.getState()
 
     return () => {
         store.dispatch({
-            type: `${REDUX_MVC_GLOBAL_UPDATE}/init`,
+            type: `${GLOBAL_UPDATE}/init`,
             payload: R.pick(observedDomains, lastState),
         })
 
@@ -17,7 +17,7 @@ const makeSubscribe = ({ globalStore, observedDomains, store }) => {
             observedDomains.forEach(key => {
                 if (newState[key] !== lastState[key]) {
                     store.dispatch({
-                        type: `${REDUX_MVC_GLOBAL_UPDATE}/update`,
+                        type: `${GLOBAL_UPDATE}/update`,
                         payload: R.pick(observedDomains, newState),
                     })
                     lastState = newState

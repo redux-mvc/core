@@ -5,14 +5,9 @@ import { bridge } from "./middleware"
 
 import { StoreManager } from "./context"
 
-import {
-    REDUX_MVC_GLOBAL_STORE_INSTANCE,
-    DEFAULT_INSTANCE_ID,
-} from "./constants"
+import { GLOBAL_CONTEXT_ID, DEFAULT_INSTANCE_ID } from "./constants"
 
 const notBind = ["constructor", "componentWillUnmount"]
-
-const defGetInstanceId = props => props.instanceId
 
 const addBridge = ({ observedDomains, globalStore }) =>
     Boolean(globalStore) &&
@@ -23,13 +18,12 @@ export const createContext = ({
     lifeCycle = {},
     handlers = {},
     options: roptions,
-    instance = Symbol("MVCContextInstance"),
+    contextId = Symbol("MVCContextInstance"),
 }) => WrappedComponent => {
     const options = {
         persist: true,
         ...roptions,
     }
-    const getInstanceId = options.getInstanceId || defGetInstanceId
 
     class WithReduxMVCContext extends Component {
         static contextType = StoreManager
@@ -48,17 +42,16 @@ export const createContext = ({
                 }
             })
 
-            if (options.persist && context.instances[instance]) {
-                this.store = context.instances[instance]
+            if (options.persist && context.moduleInstances[contextId]) {
+                this.store = context.moduleInstances[contextId]
             } else {
                 let bridgeMiddleware
 
                 if (
-                    instance !== REDUX_MVC_GLOBAL_STORE_INSTANCE &&
+                    contextId !== GLOBAL_CONTEXT_ID &&
                     addBridge({
                         observedDomains: module.observedDomains,
-                        globalStore:
-                            context.instances[REDUX_MVC_GLOBAL_STORE_INSTANCE],
+                        globalStore: context.moduleInstances[GLOBAL_CONTEXT_ID],
                     })
                 ) {
                     const { middleware, unsubscribe, subscribe } = bridge(
@@ -78,7 +71,7 @@ export const createContext = ({
                 })
 
                 this.store = store
-                context.instances[instance] = store
+                context.moduleInstances[contextId] = store
             }
 
             module.emit("start")
@@ -93,14 +86,17 @@ export const createContext = ({
                 <StoreManager.Provider
                     value={{
                         ...this.context,
-                        currentInstance: instance,
+                        contextId,
                         instanceId:
-                            getInstanceId(this.props) || DEFAULT_INSTANCE_ID,
+                            this.props.instanceId || DEFAULT_INSTANCE_ID,
                     }}
                 >
                     <WrappedComponent
                         handlers={this.handlers}
                         {...this.props}
+                        instanceId={
+                            this.props.instanceId || DEFAULT_INSTANCE_ID
+                        }
                     />
                 </StoreManager.Provider>
             )

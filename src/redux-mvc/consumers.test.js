@@ -1,69 +1,66 @@
-import * as R from "ramda"
-
-import React, { Component } from "react"
+import React from "react"
 import { mount } from "enzyme"
 
-import { StoreManager } from "./context"
 import { createContext } from "./providers"
 import { connect } from "./consumers"
 
-import pageModule from "Page"
-import { actions, getters } from "Page/model"
+import counterModule from "ui-kit/Counter"
 
 import {
     actions as CounterActions,
     getters as CounterGetters,
 } from "ui-kit/Counter/model"
 
-import { noop } from "redux-mvc/utils"
-
 describe("## Redux-MVC connect", () => {
-    it("Should pass the global instance as props", () => {
-        const Div = props => <div id="div">{props.instanceId}</div>
+    it("Should pass the context instance as props", () => {
+        const Div = connect()(props => <div id="div">{props.instanceId}</div>)
+        const App = createContext({
+            module: counterModule,
+        })(({ children }) => <div>{children}</div>)
 
-        const decorate = R.compose(
-            createContext({
-                module: pageModule,
-            }),
-            connect()
+        const wrapper = mount(
+            <App instanceId="contextInstanceId">
+                <Div />
+            </App>
         )
 
-        const App = decorate(Div)
-
-        const wrapper = mount(<App instanceId="globalInstance" />)
-        expect(wrapper.find("#div").text()).toBe("globalInstance")
+        expect(wrapper.find("#div").text()).toBe("contextInstanceId")
     })
 
     it("Should pass the default instance as props", () => {
-        const Div = props => <div id="div">{props.instanceId}</div>
+        const Div = connect()(props => <div id="div">{props.instanceId}</div>)
+        const App = createContext({
+            module: counterModule,
+        })(({ children }) => <div>{children}</div>)
 
-        const decorate = R.compose(
-            createContext({
-                module: pageModule,
-            }),
-            connect()
+        const wrapper = mount(
+            <App>
+                <Div />
+            </App>
         )
 
-        const App = decorate(Div)
-
-        const wrapper = mount(<App />)
         expect(wrapper.find("#div").text()).toBe("default")
     })
 
     it("Should pass the connected state", () => {
-        const Div = props => <div id="div">{props.count}</div>
+        const Div = connect({ count: CounterGetters.count })(props => (
+            <div id="div">{props.count}</div>
+        ))
 
-        const decorate = R.compose(
-            createContext({
-                module: pageModule,
-            }),
-            connect({ count: CounterGetters.count })
+        const App = createContext({
+            module: counterModule,
+        })(({ children }) => <div>{children}</div>)
+
+        const wrapper = mount(
+            <App>
+                <Div />
+            </App>
         )
 
-        const App = decorate(Div)
+        const instance = wrapper.instance()
+        instance.store.dispatch(CounterActions.add())
 
-        const wrapper = mount(<App />)
-        expect(wrapper.find("#div").text()).toBe("0")
+        expect(wrapper.find("#div").text()).toBe("1")
     })
 
     it("Should re-render when the state is updated", () => {
@@ -71,7 +68,7 @@ describe("## Redux-MVC connect", () => {
             <div id="div">{props.count}</div>
         ))
         const App = createContext({
-            module: pageModule,
+            module: counterModule,
         })(({ children }) => <div>{children}</div>)
 
         const wrapper = mount(
@@ -88,12 +85,12 @@ describe("## Redux-MVC connect", () => {
         expect(wrapper.find("#div").text()).toBe("1")
     })
 
-    it("Should pass the connected state from the global instance", () => {
+    it("Should pass the connected state from the context instance", () => {
         const Div = connect({ count: CounterGetters.count })(props => (
             <div id="div">{props.count}</div>
         ))
         const App = createContext({
-            module: pageModule,
+            module: counterModule,
         })(({ children }) => <div>{children}</div>)
 
         const wrapper = mount(
@@ -114,7 +111,7 @@ describe("## Redux-MVC connect", () => {
             <div id="div">{props.count}</div>
         ))
         const App = createContext({
-            module: pageModule,
+            module: counterModule,
         })(({ children }) => <div>{children}</div>)
 
         const wrapper = mount(
@@ -134,40 +131,9 @@ describe("## Redux-MVC connect", () => {
     it.skip("Should pass a prop", () => {
         const Div = connect()(props => <div id="div">{props.sum}</div>)
         const App = createContext({
-            module: pageModule,
+            module: counterModule,
         })(({ children }) => <div>{children}</div>)
 
-        const wrapper = mount(<Div sum={1} />, { wrappingComponent: App })
-        expect(wrapper.find("#div").text()).toBe("1")
-
-        wrapper.setProps({ sum: 2 })
-        expect(wrapper.find("#div").text()).toBe("2")
-    })
-
-    // check issue with enzime, or check working example PassProp, fails when context is added
-    it.skip("Test", () => {
-        const makeHoc = () => Wrapped =>
-            class Div extends Component {
-                static contextType = StoreManager
-                constructor(props) {
-                    super(props)
-                    this.computedProps = props
-                }
-                shouldComponentUpdate(props) {
-                    console.log("update", props)
-                    this.computedProps = props
-                    return true
-                }
-                render() {
-                    console.log("render", this.computedProps)
-                    return <Wrapped {...this.computedProps} />
-                }
-            }
-
-        const Div = makeHoc()(props => <div id="div">{props.sum}</div>)
-        const App = createContext({
-            module: pageModule,
-        })(({ children }) => <div>{children}</div>)
         const wrapper = mount(<Div sum={1} />, { wrappingComponent: App })
         expect(wrapper.find("#div").text()).toBe("1")
 
@@ -179,12 +145,12 @@ describe("## Redux-MVC connect", () => {
         const Div = connect(
             null,
             {
-                onClick: (_, ...params) => CounterActions.add(null, ...params),
+                onClick: CounterActions.add,
             }
         )(props => <div id="div" onClick={props.onClick} />)
 
         const App = createContext({
-            module: pageModule,
+            module: counterModule,
         })(({ children }) => <div>{children}</div>)
 
         const wrapper = mount(
@@ -206,12 +172,12 @@ describe("## Redux-MVC connect", () => {
         const Div = connect(
             null,
             {
-                onClick: (_, ...params) => CounterActions.add(null, ...params),
+                onClick: CounterActions.add,
             }
         )(props => <div id="div" onClick={props.onClick} />)
 
         const App = createContext({
-            module: pageModule,
+            module: counterModule,
         })(({ children }) => <div>{children}</div>)
 
         const wrapper = mount(
@@ -236,12 +202,12 @@ describe("## Redux-MVC connect", () => {
         const Div = connect(
             null,
             {
-                onClick: (_, ...params) => CounterActions.add(null, ...params),
+                onClick: CounterActions.add,
             }
         )(props => <div id="div" onClick={props.onClick} />)
 
         const App = createContext({
-            module: pageModule,
+            module: counterModule,
         })(({ children }) => <div>{children}</div>)
 
         const wrapper = mount(
@@ -262,113 +228,25 @@ describe("## Redux-MVC connect", () => {
         })
     })
 
-    it("Should re-render once when the state is updated", () => {
-        let rendered = 0
-
-        const Div = connect(
-            { fixedCount: getters.fixedCount },
-            props => ({
-                onClick: (_, ...params) =>
-                    CounterActions.setCount(props.fixedCount, ...params),
-            })
-        )(props => {
-            rendered += 1
-            return <div id="div" onClick={props.onClick} />
-        })
-
-        const App = createContext({
-            module: pageModule,
-        })(({ children }) => <div>{children}</div>)
-
-        const wrapper = mount(
-            <App>
-                <Div />
-            </App>
-        )
-
-        rendered = 0
-        const instance = wrapper.instance()
-        instance.store.dispatch(actions.setFixedCount(10))
-
-        expect(rendered).toEqual(1)
-    })
-
-    it("Should re-render once if props change", () => {
-        let rendered = 0
-
-        const Div = connect(
-            { fixedCount: getters.fixedCount },
-            props => ({
-                onClick: (_, ...params) =>
-                    CounterActions.setCount(props.fixedCount, ...params),
-            })
-        )(props => {
-            rendered += 1
-            return <div id="div" onClick={props.onClick} />
-        })
-
-        const App = createContext({
-            module: pageModule,
-        })(({ children }) => <div>{children}</div>)
-
-        const wrapper = mount(<Div text="hola" />, { wrappingComponent: App })
-
-        rendered = 0
-        wrapper.setProps({ text: "chau" })
-
-        expect(rendered).toEqual(1)
-    })
-
-    it("Should not re-render if the updated state is not observed", () => {
-        let rendered = 0
-
-        const Div = connect(
-            { fixedCount: getters.fixedCount },
-            props => ({
-                onClick: (_, ...params) =>
-                    CounterActions.setCount(props.fixedCount, ...params),
-            })
-        )(props => {
-            rendered += 1
-            return <div id="div" onClick={props.onClick} />
-        })
-
-        const App = createContext({
-            module: pageModule,
-        })(({ children }) => <div>{children}</div>)
-
-        const wrapper = mount(
-            <App>
-                <Div />
-            </App>
-        )
-
-        rendered = 0
-        const instance = wrapper.instance()
-        instance.store.dispatch(actions.delete())
-
-        expect(rendered).toEqual(0)
-    })
-
     // check issue with enzime, or check working example PassProp
-    it.skip("Getters should be called if props change", () => {
+    it("should call getters if props change", () => {
         const fixedCount = jest.fn(() => 10)
-        const mapDispatch = jest.fn(() => ({ onClick: noop }))
 
-        const Div = connect(
-            { fixedCount: fixedCount },
-            mapDispatch
-        )(props => <div id="div" onClick={props.onClick} />)
+        const Div = connect({ fixedCount })(props => (
+            <div id="div">{props.text}</div>
+        ))
 
         const App = createContext({
-            module: pageModule,
-        })(({ children }) => <div>{children}</div>)
+            module: counterModule,
+        })(({ text }) => <Div text={text} />)
 
-        const wrapper = mount(<Div text="hola" />, { wrappingComponent: App })
+        const wrapper = mount(<App text="hola" />)
 
+        expect(wrapper.find("#div").text()).toBe("hola")
         expect(fixedCount.mock.calls.length).toBe(1)
 
         wrapper.setProps({ text: "chau" })
+        expect(wrapper.find("#div").text()).toBe("chau")
         expect(fixedCount.mock.calls.length).toBe(2)
     })
 })

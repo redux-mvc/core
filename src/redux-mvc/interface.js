@@ -1,9 +1,9 @@
 export const moduleInterface = {
-    modules: [],
+    modules: {},
     iniState: {},
     reducers: {},
+    middleware: {},
     namespace: "",
-    namespaces: [],
     on() {},
     emit() {},
     reducer() {},

@@ -1,3 +1,6 @@
+const ns = "ReduxMVC"
+
 export const DEFAULT_INSTANCE_ID = "default"
-export const REDUX_MVC_GLOBAL_UPDATE = "ReduxMVCGlobalUpdate"
-export const REDUX_MVC_GLOBAL_STORE_INSTANCE = "ReduxMVCGlobalUpdate"
+export const GLOBAL_UPDATE = `${ns}/GlobalUpdate`
+export const GLOBAL_CONTEXT_ID = Symbol("GlobalContextId")
+export const EMPTY = Symbol("empty")
