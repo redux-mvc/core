@@ -147,3 +147,9 @@ export const addEvents = () => module => {
         emit,
     }
 }
+
+export const createModule = compose(
+    addCreateStore(),
+    addReducer(),
+    addEvents()
+)
