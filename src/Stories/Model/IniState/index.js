@@ -1,4 +1,4 @@
-import { createModule } from "App/utils"
+import { createModule } from "redux-mvc"
 
 import model from "./model.js"
 

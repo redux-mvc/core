@@ -11,7 +11,7 @@ import {
     StateFormatter,
     CodeViewer,
     codeBoxStyle,
-} from "App/View/Common"
+} from "Stories/Common"
 
 const State = connect({ state: getters.module })(StateFormatter)
 

@@ -27,6 +27,4 @@ const decorate = R.compose(
 const module = decorate(model)
 
 export default module
-
-
 `

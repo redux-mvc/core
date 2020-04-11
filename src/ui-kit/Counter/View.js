@@ -15,11 +15,12 @@ const Counter = ({
     add = noop,
     reset = noop,
     instanceId,
+    name = "",
     style = {},
     ...props
 }) => (
     <div style={{ display: "flex", ...style }} {...props}>
-        <div style={{ marginRight: 10 }}>{instanceId}:</div>
+        <div style={{ marginRight: 10 }}>{name || instanceId}:</div>
         <button
             style={{ marginRight: 10 }}
             onClick={() => add()}

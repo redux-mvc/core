@@ -1,4 +1,4 @@
-# createModel
+# createModel(definition)
 
 Creates a `redux-mvc` model: reducer, getters, setters and actions
 
