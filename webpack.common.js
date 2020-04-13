@@ -11,6 +11,10 @@ module.exports = {
     },
     resolve: {
         modules: ["node_modules", path.join(__dirname, "src")],
+        alias: {
+            TodoMVC: path.join(__dirname, "src", "Examples", "TodoMVC"),
+            App: path.join(__dirname, "src", "Examples", "App"),
+        },
     },
     plugins: [
         new CleanWebpackPlugin(),
@@ -26,8 +30,12 @@ module.exports = {
                 include: [path.join(__dirname, "src")],
             },
             {
-                test: /\.(png|jpg|gif|GIF|ttf|woff|eot|svg|css)$/,
+                test: /\.(png|jpg|gif|GIF|ttf|woff|eot|svg)$/,
                 loader: "file-loader?name=assets/[name].[ext]",
+            },
+            {
+                test: /\.css$/i,
+                use: ["style-loader", "css-loader"],
             },
         ],
     },
