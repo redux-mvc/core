@@ -11,7 +11,7 @@ export const getTodos = createSelector(
 )
 
 export const getTodoById = (state, props) => {
-    const todos = getters.todos(state)
+    const todos = getters.todos(state, props)
 
     return R.propOr(EMPTY_TODO, props.id, todos)
 }

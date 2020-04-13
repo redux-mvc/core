@@ -2,7 +2,7 @@ import React from "react"
 import { connect } from "redux-mvc"
 import cx from "classnames"
 
-import { getPendingCount } from "./selectors"
+import { getPendingCount, getShowClearCompleted } from "./selectors"
 
 import { actions as DataActions } from "TodoMVC/Data/model"
 import { actions, getters } from "./model"
@@ -14,15 +14,17 @@ const decorate = connect(
     {
         activeFilter: getters.activeFilter,
         todoCount: getPendingCount,
+        showClearCompleted: getShowClearCompleted,
     },
     {
         setActiveFilter: actions.setActiveFilter,
-        clearCompleted: () => DataActions.clearCompleted(), // omit passed instanceId
+        clearCompleted: DataActions.clearCompleted,
     }
 )
 
 const TodoFilter = ({
     todoCount = 0,
+    showClearCompleted = false,
     activeFilter = FILTERS.ALL,
     setActiveFilter = noop,
     clearCompleted = noop,
@@ -62,9 +64,11 @@ const TodoFilter = ({
                 </a>
             </li>
         </ul>
-        <button className="clear-completed" onClick={clearCompleted}>
-            Clear completed
-        </button>
+        {showClearCompleted > 0 && (
+            <button className="clear-completed" onClick={clearCompleted}>
+                Clear completed
+            </button>
+        )}
     </footer>
 )
 

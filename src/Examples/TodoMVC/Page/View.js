@@ -7,7 +7,7 @@ import "todomvc-app-css/index.css"
 
 import module from "./index"
 
-import { getActiveIds } from "./selectors"
+import { getActiveIds, getShowTodos } from "./selectors"
 import * as DataSelectors from "TodoMVC/Data/selectors"
 
 import { actions as DataActions } from "TodoMVC/Data/model"
@@ -25,6 +25,7 @@ const decorate = R.compose(
     connect(
         {
             todoIds: getActiveIds,
+            showTodos: getShowTodos,
             allToggled: DataSelectors.getAllToggled,
         },
         {
@@ -33,28 +34,37 @@ const decorate = R.compose(
     )
 )
 
-const TodoMVC = ({ todoIds = [], allToggled = false, toggleAll = noop }) => (
+const TodoMVC = ({
+    todoIds = [],
+    showTodos = false,
+    allToggled = false,
+    toggleAll = noop,
+}) => (
     <section className="todoapp">
         <TodoInput />
-        <section className="main">
-            <input
-                id="toggle-all"
-                className="toggle-all"
-                type="checkbox"
-                checked={allToggled}
-                onClick={toggleAll}
-            />
-            <label htmlFor="toggle-all" />
-            <ul className="todo-list">
-                {R.map(
-                    id => (
-                        <TodoItem id={id} instanceId={id} />
-                    ),
-                    todoIds
-                )}
-            </ul>
-        </section>
-        <TodoFilter />
+        {showTodos ? (
+            <>
+                <section className="main">
+                    <input
+                        id="toggle-all"
+                        className="toggle-all"
+                        type="checkbox"
+                        checked={allToggled}
+                        onClick={toggleAll}
+                    />
+                    <label htmlFor="toggle-all" />
+                    <ul className="todo-list">
+                        {R.map(
+                            id => (
+                                <TodoItem id={id} instanceId={id} />
+                            ),
+                            todoIds
+                        )}
+                    </ul>
+                </section>
+                <TodoFilter />
+            </>
+        ) : null}
     </section>
 )
 

@@ -22,7 +22,7 @@ const decorate = connect(
         toggle: actions.toggleCompleted,
         commit: actions.commit,
         cancel: actions.cancel,
-        remove: id => DataActions.remove(id), // dispatch to the default instance
+        remove: DataActions.remove,
     }
 )
 

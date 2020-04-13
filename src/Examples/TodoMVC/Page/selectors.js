@@ -7,13 +7,21 @@ import { getters as FilterGetters } from "TodoMVC/TodoFilter/model"
 import { FILTERS } from "TodoMVC/TodoFilter/constants"
 
 export const getActiveIds = createSelector(
-    state => DataGetters.all(state),
-    state => DataGetters.completed(state),
-    state => FilterGetters.activeFilter(state),
+    DataGetters.all,
+    DataGetters.completed,
+    FilterGetters.activeFilter,
     (all, completed, activeFilter) =>
         R.prop(activeFilter, {
             [FILTERS.ALL]: R.always(all),
             [FILTERS.COMPLETED]: R.always(completed),
             [FILTERS.PENDING]: () => R.without(completed, all),
         })()
+)
+
+export const getShowTodos = createSelector(
+    DataGetters.all,
+    R.compose(
+        R.lt(0),
+        R.length
+    )
 )

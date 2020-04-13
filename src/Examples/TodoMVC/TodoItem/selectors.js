@@ -9,7 +9,7 @@ import { getters as DataGetters } from "TodoMVC/Data/model"
 export const getTodo = createSelector(
     getTodoById,
     getters.editing,
-    state => DataGetters.completed(state),
+    DataGetters.completed,
     (todo, editing, completed) => ({
         ...todo,
         editing,

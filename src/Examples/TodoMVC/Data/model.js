@@ -45,6 +45,7 @@ const model = createModel({
         }),
     },
     namespace: "TodoData",
+    singleton: true,
 })
 
 const { getters, actions } = model
