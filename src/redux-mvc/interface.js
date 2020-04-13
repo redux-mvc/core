@@ -4,6 +4,8 @@ export const moduleInterface = {
     reducers: {},
     middleware: {},
     namespace: "",
+    observedDomains: [],
+    dispatchToGlobal() {},
     on() {},
     emit() {},
     reducer() {},

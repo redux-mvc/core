@@ -124,7 +124,6 @@ export const merge = right => left => {
         modules,
         iniState: { ...left.iniState, ...right.iniState },
         reducers: { ...left.reducers, ...right.reducers },
-        namespaces,
         observedDomains,
         dispatchToGlobal: makeDispatchToGlobal(namespaces),
     }
