@@ -20,11 +20,15 @@ export const mergeAll = all =>
     all.reduce((acc, val) => ({ ...acc, ...(val || {}) }), {})
 
 // mvc utils
-export const getSelectorInstanceId = props =>
-    propOr(DEFAULT_INSTANCE_ID, "instanceId", props)
+export const getSelectorInstanceId = (props, singleton) =>
+    singleton
+        ? DEFAULT_INSTANCE_ID
+        : propOr(DEFAULT_INSTANCE_ID, "instanceId", props)
 
-export const getActionInstanceId = action =>
-    pathOr(DEFAULT_INSTANCE_ID, ["meta", "instanceId"], action)
+export const getActionInstanceId = (action, singleton) =>
+    singleton
+        ? DEFAULT_INSTANCE_ID
+        : pathOr(DEFAULT_INSTANCE_ID, ["meta", "instanceId"], action)
 
 export const getDisplayName = WrappedComponent => {
     return WrappedComponent.displayName || WrappedComponent.name || "Component"

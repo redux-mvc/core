@@ -1,9 +1,10 @@
 export const moduleInterface = {
+    namespace: "",
     modules: {},
     iniState: {},
     reducers: {},
     middleware: {},
-    namespace: "",
+    singleton: false,
     observedDomains: [],
     dispatchToGlobal() {},
     on() {},

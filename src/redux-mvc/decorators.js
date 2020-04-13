@@ -25,7 +25,10 @@ export const addReducer = () => module => ({
             return state
         }
 
-        const instanceId = getActionInstanceId(action)
+        const instanceId = getActionInstanceId(
+            action,
+            pathOr(false, [action.namespace, "singleton"], action)
+        )
         const namespace = action.namespace
         const p = [namespace, instanceId]
         const oldState = pathOr(

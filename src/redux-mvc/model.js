@@ -14,6 +14,7 @@ export const createModel = ({
     iniState = {},
     reducers = {},
     namespace = "",
+    singleton = false,
 }) => {
     const setActions = Object.keys(iniState).reduce(
         (acc, key) => {
@@ -81,7 +82,7 @@ export const createModel = ({
         (acc, key) => ({
             ...acc,
             [key]: (state, props = {}) => {
-                const instanceId = getSelectorInstanceId(props)
+                const instanceId = getSelectorInstanceId(props, singleton)
                 return pathOr(
                     prop(key, iniState),
                     [namespace, instanceId, key],
@@ -91,7 +92,7 @@ export const createModel = ({
         }),
         {
             instance: (state, props) => {
-                const instanceId = getSelectorInstanceId(props)
+                const instanceId = getSelectorInstanceId(props, singleton)
                 return pathOr(iniState, [namespace, instanceId], state)
             },
             namespace: state => propOr(iniState, namespace, state),
@@ -107,5 +108,6 @@ export const createModel = ({
         iniState: { [namespace]: { [DEFAULT_INSTANCE_ID]: iniState } },
         namespace,
         namespaces: [namespace],
+        singleton,
     }
 }
