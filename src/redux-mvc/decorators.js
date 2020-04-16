@@ -27,7 +27,7 @@ export const addReducer = () => module => ({
 
         const instanceId = getActionInstanceId(
             action,
-            pathOr(false, [action.namespace, "singleton"], action)
+            pathOr(false, [action.namespace, "singleton"], module.modules)
         )
         const namespace = action.namespace
         const p = [namespace, instanceId]
