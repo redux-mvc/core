@@ -47,7 +47,7 @@ const TodoItem = ({
                 className="toggle"
                 type="checkbox"
                 checked={todo.completed}
-                onClick={toggle}
+                onChange={toggle}
             />
             <label onDoubleClick={() => enableEditing(todo.text)}>
                 {todo.text}

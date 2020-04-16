@@ -50,13 +50,13 @@ const TodoMVC = ({
                         className="toggle-all"
                         type="checkbox"
                         checked={allToggled}
-                        onClick={toggleAll}
+                        onChange={toggleAll}
                     />
                     <label htmlFor="toggle-all" />
                     <ul className="todo-list">
                         {R.map(
                             id => (
-                                <TodoItem id={id} instanceId={id} />
+                                <TodoItem key={id} id={id} instanceId={id} />
                             ),
                             todoIds
                         )}
