@@ -8,6 +8,12 @@ import {
 } from "redux-mvc"
 import createSagaMiddleware from "redux-saga"
 
+/*
+
+  addSagaMiddleware decorator
+
+*/
+
 export const addSagaMiddleware = rootSaga => module => {
     const sagaMiddleware = createSagaMiddleware()
 
@@ -33,6 +39,13 @@ export const addSagaMiddleware = rootSaga => module => {
 
     return newModule
 }
+
+/*
+
+  In order to use the new decorator *addSagaMiddleware* we need to rewrite
+  the merge and createModule decorators also.
+
+*/
 
 export const merge = right => left => {
     const newModule = MVCmerge(right)(left)
