@@ -1,10 +1,11 @@
 export { DEFAULT_INSTANCE_ID, GLOBAL_CONTEXT_ID } from "./constants"
 
-export { StoreManager } from "./context"
+export * from "./decorators"
+
+export { moduleInterface } from "./interface"
+export { createModel } from "./model"
 export { createContext } from "./providers"
 export { connect } from "./consumers"
-export { createModel } from "./model"
-export { moduleInterface } from "./interface"
 export { useModel } from "./hooks"
 export { createSelector } from "./selectors"
-export * from "./decorators"
+export { StoreManager } from "./context"

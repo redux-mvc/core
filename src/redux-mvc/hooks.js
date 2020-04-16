@@ -8,7 +8,9 @@ export const useModel = (selectors, actions, props) => {
     const instanceId = propOr(context.instanceId, "instanceId", props)
     const store = context.moduleInstances[context.contextId]
     if (!store && process.env.NODE_ENV !== "production") {
-        throw Error("No context for useModel")
+        throw Error(
+            "No store found for `useModel`. Please use `createContext` in a parent component."
+        )
     }
     const [state, setState] = useState((store && store.getState()) || {})
     const [cache] = useState({})

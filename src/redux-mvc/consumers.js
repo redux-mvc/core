@@ -5,11 +5,13 @@ import { StoreManager } from "./context"
 import { useModel } from "./hooks"
 
 // check how instances work
-export const connect = (selectors, actions) => Component => {
+export const connect = (selectors, actions, options = {}) => Component => {
     const WrappedComponent =
-        typeof Component === "function" ? React.memo(Component) : Component
+        typeof Component === "function"
+            ? React.memo(Component, options.areEqual)
+            : Component
 
-    const WithReduxMVCConnect = props => {
+    const WithReduxMVCConnect = React.memo(props => {
         const context = useContext(StoreManager)
         const modelProps = useModel(selectors, actions, props)
 
@@ -25,7 +27,7 @@ export const connect = (selectors, actions) => Component => {
             )
         }
         return dom
-    }
+    }, options.areEqual)
 
     WithReduxMVCConnect.displayName = `WithReduxMVCConnect(${getDisplayName(
         WrappedComponent
