@@ -38,3 +38,19 @@ export const concatReducers = reducers => (state, action) =>
     reducers.reduce((acc, r) => r(acc, action), state)
 
 export const capitalizeFirst = str => str[0].toUpperCase() + str.slice(1)
+
+export const isEmpty = obj => !obj || Object.keys(obj).length === 0
+
+export const diff = (oldObj, newObj) => {
+    if (oldObj === newObj) {
+        return false
+    }
+    if (typeof oldObj === "object" && typeof newObj === "object") {
+        for (const key in oldObj) {
+            if (oldObj[key] !== newObj[key]) {
+                return true
+            }
+        }
+    }
+    return false
+}

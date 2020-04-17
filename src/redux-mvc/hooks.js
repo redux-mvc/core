@@ -1,7 +1,23 @@
 import { useContext, useMemo, useState, useEffect } from "react"
 import { StoreManager } from "./context"
 
-import { propOr, noop } from "./utils"
+import { propOr, noop, diff } from "./utils"
+
+const getStateProps = ({ selectors, instanceId, cache, state, props }) =>
+    Object.entries(selectors || {}).reduce((acc, [key, f]) => {
+        cache[f.id] = cache[f.id] || {}
+        return {
+            ...acc,
+            [key]: f(
+                state,
+                {
+                    ...(props || {}),
+                    instanceId,
+                },
+                cache
+            ),
+        }
+    }, {})
 
 export const useModel = (selectors, actions, props) => {
     const context = useContext(StoreManager)
@@ -12,36 +28,39 @@ export const useModel = (selectors, actions, props) => {
             "No store found for `useModel`. Please use `createContext` in a parent component."
         )
     }
-    const [state, setState] = useState((store && store.getState()) || {})
     const [cache] = useState({})
+    const [stateProps, setStateProps] = useState(
+        getStateProps({
+            selectors,
+            instanceId,
+            cache,
+            state: store.getState(),
+            props,
+        })
+    )
 
     useEffect(() => {
         if (store) {
-            return store.subscribe(() => setState(store.getState()))
+            let oldStateProps = stateProps
+            return store.subscribe(() => {
+                const newStateProps = getStateProps({
+                    selectors,
+                    instanceId,
+                    cache,
+                    state: store.getState(),
+                    props,
+                })
+
+                if (diff(oldStateProps, newStateProps)) {
+                    oldStateProps = newStateProps
+                    setStateProps(newStateProps)
+                }
+            })
         }
         return noop
-    }, [store])
+    }, [store, props, selectors, instanceId])
 
-    const computedProps = useMemo(
-        () =>
-            Object.entries(selectors || {}).reduce((acc, [key, f]) => {
-                cache[f.id] = cache[f.id] || {}
-                return {
-                    ...acc,
-                    [key]: f(
-                        state,
-                        {
-                            ...(props || {}),
-                            instanceId,
-                        },
-                        cache
-                    ),
-                }
-            }, {}),
-        [props, state, instanceId]
-    )
-
-    const computedActions = useMemo(
+    const actionProps = useMemo(
         () =>
             Object.entries(actions || {}).reduce((actions, [key, f]) => {
                 if (typeof f !== "function") {
@@ -67,8 +86,9 @@ export const useModel = (selectors, actions, props) => {
         [instanceId]
     )
 
-    return useMemo(
-        () => ({ ...computedProps, ...computedActions, instanceId }),
-        [computedProps, computedActions, instanceId]
-    )
+    return useMemo(() => ({ ...stateProps, ...actionProps, instanceId }), [
+        stateProps,
+        actionProps,
+        instanceId,
+    ])
 }
