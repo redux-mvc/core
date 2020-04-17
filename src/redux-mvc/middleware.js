@@ -59,6 +59,6 @@ export const bridge = (observedDomains, dispatchToGlobal, globalStore) => {
         subscribe: () => {
             subscription = subscribe()
         },
-        unsubscribe: () => subscription(),
+        unsubscribe: subscription,
     }
 }

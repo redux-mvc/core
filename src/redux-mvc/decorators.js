@@ -135,12 +135,19 @@ export const merge = right => left => {
 export const addEvents = () => module => {
     let listeners = {}
 
-    const emit = (event, ...params) =>
-        (listeners[event] || []).forEach(f => f(...params))
+    const emit = (event, ...params) => {
+        const registry = listeners[event] || {}
+        Object.getOwnPropertySymbols(registry).forEach(id =>
+            registry[id](...params)
+        )
+    }
     const on = (event, f) => {
-        listeners[event] = [...(listeners[event] || []), f]
+        const id = Symbol("newId")
+        listeners[event] = { ...(listeners[event] || {}), [id]: f }
         return () => {
-            listeners[event] = (listeners[event] || []).filter(g => g !== f)
+            // eslint-disable-next-line no-unused-vars
+            const { [id]: remove, ...rest } = listeners[event] || {}
+            listeners[event] = rest
         }
     }
 

@@ -1,6 +1,6 @@
 import React, { Component } from "react"
 
-import { getDisplayName } from "./utils"
+import { getDisplayName, noop } from "./utils"
 import { bridge } from "./middleware"
 
 import { StoreManager } from "./context"
@@ -28,10 +28,13 @@ export const createContext = ({
     class WithReduxMVCContext extends Component {
         static contextType = StoreManager
 
+        handlers = {}
+        unregisterStart = noop
+        unregisterStop = noop
+
         constructor(props, context) {
             super(props, context)
 
-            this.handlers = {}
             Object.entries(handlers).forEach(([key, f]) => {
                 this.handlers[key] = f.bind(this)
             })
@@ -60,8 +63,8 @@ export const createContext = ({
                         context.store
                     )
 
-                    module.on("start", subscribe)
-                    module.on("stop", unsubscribe)
+                    this.unregisterStart = module.on("start", subscribe)
+                    this.unregisterStop = module.on("stop", unsubscribe)
                     bridgeMiddleware = middleware
                 }
 
@@ -79,6 +82,10 @@ export const createContext = ({
 
         componentWillUnmount() {
             module.emit("stop")
+            if (!options.persist) {
+                this.unregisterStart()
+                this.unregisterStop()
+            }
         }
 
         render() {
