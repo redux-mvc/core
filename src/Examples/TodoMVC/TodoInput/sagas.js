@@ -4,7 +4,7 @@ import { put, take, select, call, all } from "redux-saga/effects"
 import { actions, getters } from "./model"
 import { actions as DataActions } from "TodoMVC/Data/model"
 
-const uuid = () => Math.floor(Math.random() * 100)
+const uuid = (limit = 100) => Math.floor(Math.random() * limit)
 
 const watchCommit = function*() {
     for (;;) {
@@ -14,7 +14,7 @@ const watchCommit = function*() {
         if (!R.isEmpty(text)) {
             const id = yield call(uuid)
             yield all([
-                put(DataActions.add({ id, text, completed: false })),
+                put(DataActions.add({ id, text, completed: false }, { meta })),
                 put(actions.setText("")),
             ])
         }

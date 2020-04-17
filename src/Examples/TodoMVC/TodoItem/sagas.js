@@ -13,7 +13,7 @@ const watchCommit = function*() {
 
         if (!R.isEmpty(text)) {
             yield all([
-                put(DataActions.edit({ id: meta.instanceId, text })),
+                put(DataActions.edit({ id: meta.instanceId, text }, { meta })),
                 put(actions.setValue("", { meta })),
             ])
         }
