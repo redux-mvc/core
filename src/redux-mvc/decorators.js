@@ -7,6 +7,7 @@ import {
     getActionInstanceId,
     noop,
     identity,
+    uniq,
 } from "./utils"
 
 import { GLOBAL_UPDATE, DEFAULT_INSTANCE_ID } from "./constants"
@@ -27,7 +28,13 @@ export const addReducer = () => module => ({
 
         const instanceId = getActionInstanceId(
             action,
-            pathOr(false, [action.namespace, "singleton"], module.modules)
+            pathOr(
+                action.namespace === module.namespace
+                    ? module.singleton
+                    : false,
+                [action.namespace, "singleton"],
+                module.modules
+            )
         )
         const namespace = action.namespace
         const p = [namespace, instanceId]
@@ -55,7 +62,7 @@ export const addReducer = () => module => ({
     },
 })
 
-export const addObserveGlobal = ({
+export const addBridge = ({
     observedDomains = [],
     dispatchToGlobal = noop,
 }) => module => ({
@@ -108,27 +115,30 @@ const makeDispatchToGlobal = namespaces => {
     return action => !action.type.test(re)
 }
 
-export const merge = right => left => {
+export const merge = left => right => {
     const modules = {
         ...(left.modules || {}),
+        ...(right.modules || {}),
+        [left.namespace]: left,
         [right.namespace]: right,
     }
-    const namespaces = Object.values(modules).map(module => module.namespace)
-    const observedDomains = Object.values(modules).reduce(
-        (observedDomains, module) => [
-            ...observedDomains,
-            ...(module.observedDomains || []),
-        ],
-        []
-    )
+    const namespaces = uniq([
+        ...(left.namespaces || []),
+        ...(right.namespaces || []),
+    ])
 
     return {
         ...left,
+        ...right,
         modules,
         iniState: { ...left.iniState, ...right.iniState },
         reducers: { ...left.reducers, ...right.reducers },
-        observedDomains,
         dispatchToGlobal: makeDispatchToGlobal(namespaces),
+        observedDomains: uniq([
+            ...(left.observedDomains || []),
+            ...(right.observedDomains || []),
+        ]),
+        namespaces,
     }
 }
 

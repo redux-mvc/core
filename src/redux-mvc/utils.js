@@ -54,3 +54,6 @@ export const diff = (oldObj, newObj) => {
     }
     return false
 }
+
+export const uniq = arr =>
+    Object.values(arr.reduce((acc, key) => ({ ...acc, [key]: key }), {}))

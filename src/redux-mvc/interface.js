@@ -1,13 +1,20 @@
-export const moduleInterface = {
+/* eslint-disable no-unused-vars */
+
+export const ModelInterface = {
     namespace: "",
-    modules: {},
     iniState: {},
     reducers: {},
-    middleware: {},
     singleton: false,
+}
+
+export const moduleInterface = {
+    ...ModelInterface,
+    modules: {},
+    middleware: {},
     observedDomains: [],
-    dispatchToGlobal() {},
-    on() {},
-    emit() {},
-    reducer() {},
+    reducer(state, action) {},
+    createStore({ bridgeMiddleware }) {},
+    dispatchToGlobal(action) {},
+    on(event, handler) {},
+    emit(event, ...params) {},
 }

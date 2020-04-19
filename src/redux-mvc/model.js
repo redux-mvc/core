@@ -15,6 +15,7 @@ export const createModel = ({
     reducers = {},
     namespace = "",
     singleton = false,
+    ...props
 }) => {
     const setActions = Object.keys(iniState).reduce(
         (acc, key) => {
@@ -102,12 +103,13 @@ export const createModel = ({
     const handlers = mergeAll([setReducers, customReducers]) // reducers
 
     return {
+        namespace,
+        iniState: { [namespace]: { [DEFAULT_INSTANCE_ID]: iniState } },
         reducers: handlers,
         actions,
         getters,
-        iniState: { [namespace]: { [DEFAULT_INSTANCE_ID]: iniState } },
-        namespace,
         namespaces: [namespace],
         singleton,
+        ...props,
     }
 }
