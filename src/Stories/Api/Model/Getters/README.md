@@ -5,18 +5,22 @@ Returns `key` property from the `state`
 The signature of `getters.key` is:
 
 ```ts
-(state: Object, props?: Object) -> Pick<state, key>
+Getter: (state: Object, props?: Object) -> Pick<state, key>
 ```
 
 ## Arguments
 
-1. `state` (Object):
+1. `state: Object`
 
   The module's `state` Object.
 
-2. `props` (Object):
+2. `props?: Object`
 
-   The only prop that `getters` use is `props.instanceId` to return the `key` from the specified `instanceId`. If the `instanceId` is not found, the `getter` will return the `iniState` slice.
+   The only prop that `getters` use is `props.instanceId` to return the `key` from the specified `instanceId`. 
+   
+   If the `instanceId` is not found, the `getter` will return the `DEFAULT_INSTANCE_ID` slice.
+
+   * Default: `{}`
    
 ## Special getters
 

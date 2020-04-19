@@ -4,7 +4,7 @@
 
 ## Creating Reducers
 
-- The module reducer will be created out of a collection of reducers:
+- The module reducer will be created out of a collection of reducer functions:
 
   ```js
   const model = createModel({
@@ -22,7 +22,7 @@
 
 ## Actions
 
-*redux-mvc* will also dinamically create one *action creator* for each reducer.
+*redux-mvc* will also dinamically create one *action creator* for each reducer function.
 
 - Given this model
 

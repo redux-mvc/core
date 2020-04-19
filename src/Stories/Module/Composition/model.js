@@ -1,11 +1,6 @@
 import { createModel } from "redux-mvc"
 
-const iniState = {
-    loading: false,
-}
-
 const model = createModel({
-    iniState,
     namespace: "CounterAndSearchbar",
 })
 
@@ -18,12 +13,7 @@ export default model
 export const modelCode = `
 import { createModel } from "redux-mvc"
 
-const iniState = {
-    loading: false,
-}
-
 const model = createModel({
-    iniState,
     namespace: "CounterAndSearchbar",
 })
 
