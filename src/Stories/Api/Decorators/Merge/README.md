@@ -19,7 +19,7 @@ const newModule = R.compose(
 ## Return value
 
 ```js
-{
+newModule = {
     ...leftModule,
     ...rightModule,
     modules: {...left.modules, ...right.modules },
@@ -27,6 +27,6 @@ const newModule = R.compose(
     reducers: { ...left.reducers, ...right.reducers },
     dispatchToGlobal, // create default dispatch to global
     observedDomains, // merge all observedDomains
-}
+} : ModuleInterface
 
 ```

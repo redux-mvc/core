@@ -20,10 +20,10 @@ const newModule = R.compose(
 ## Return value
 
 ```js
-ModuleInterface: {
+newModule = {
     ...module,
     reducer(state, action) {...},
-}
+} : ModuleInterface
 
 ```
 
@@ -31,9 +31,10 @@ ModuleInterface: {
 
 ### reducer(previousState, action)
 
+Computes the `nextState` out of the `previousState` and `action`
+
 ```js
 Reducer: (previousState: Object, action: ActionPayload) -> nextState: Object
 
 ```
 
-Computes the `nextState` out of the `previousState` and `action`

@@ -16,12 +16,12 @@ import {
 const State = connect({ state: getters.module })(StateFormatter)
 
 const files = [
-    { name: "index", code: moduleCode },
-    { name: "model", code: modelCode },
     {
         name: "view",
         code: viewCode,
     },
+    { name: "model", code: modelCode },
+    { name: "index", code: moduleCode },
 ]
 
 const decorate = createContext({

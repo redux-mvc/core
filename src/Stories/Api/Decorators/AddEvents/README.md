@@ -19,11 +19,11 @@ const newModule = R.compose(
 ## Return value
 
 ```js
-ModuleInterface: {
+newModule = {
     ...module,
     on(event, handler) {...}
     emit(event, ...params) {...}
-}
+} : ModelInterface
 
 ```
 
@@ -31,7 +31,7 @@ ModuleInterface: {
 
 ### emit(event, ...params)
 
-Emits an event of type `event`;
+Emits an event of type `event`
 
 Arguments
 
@@ -39,20 +39,20 @@ Arguments
 
   The event type.
 
-2. `params: ...Array<Any>`:
+2. `params: ...Array<Any>`
 
   The rest of the parameters will be passed to the event handlers.
 
 ### on(event, handler)
 
-Registers a handler for a specific event of type `event`;
+Registers a handler for a specific event of type `event`
 
 Arguments
 
-1. `event: String`:
+1. `event: String`
 
   The event type.
 
-2. `handler: (...params: Array<Any>) -> Any`:
+2. `handler: (...params: Array<Any>) -> Any`
 
   The handler function that takes the parameters passed to `emit`.

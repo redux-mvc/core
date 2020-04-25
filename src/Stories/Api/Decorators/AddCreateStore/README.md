@@ -1,6 +1,6 @@
 # addCreateStore()(module)
 
-Mixes the `createStore` method so that the `createContext` provider can receive the store object.
+Mixes the `createStore` method so that the `createContext` provider can create the store object.
 
 ## Use
 
@@ -20,10 +20,10 @@ const newModule = R.compose(
 ## Return value
 
 ```js
-ModuleInterface: {
+newModule = {
     ...module,
     createStore({ bridgeMiddleware }) {...}
-}
+} : ModuleInterface
 
 ```
 
@@ -35,7 +35,7 @@ Returns the store object.
 
 Arguments
 
-1. `bridgeMiddleware: Middleware`:
+1. `bridgeMiddleware: Middleware`
 
   The middleware responsible for observing the global store. 
   It is passed by the `createContext` provider.

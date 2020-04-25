@@ -5,7 +5,7 @@ Returns `key` property from the `state`
 The signature of `getters.key` is:
 
 ```ts
-Getter: (state: Object, props?: Object) -> Pick<state, key>
+Getter<key>: (state: Object, props?: Object) -> Pick<state, key>
 ```
 
 ## Arguments

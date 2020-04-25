@@ -9,7 +9,7 @@ Should be executed after any `merge` decorator if you want to override the defau
 
   ```ts
   const newModule = R.compose(
-      addObserveGlobal({ observedDomains, dispatchToGlobal })
+      addBridge({ observedDomains, dispatchToGlobal })
       ...
       merge(searchBar),
   )(module)
@@ -29,10 +29,10 @@ Should be executed after any `merge` decorator if you want to override the defau
 ## Return value
 
   ```ts
-  ModuleInterface: {
+  newModule = {
       ...module,
-      observedDomains?,
-      dispatchToGlobal?,
-  }
+      observedDomains,
+      dispatchToGlobal,
+  } : ModuleInterface
 
   ```

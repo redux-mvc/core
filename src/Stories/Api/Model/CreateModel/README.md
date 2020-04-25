@@ -4,15 +4,13 @@ Creates a `redux-mvc` model: `getters`, `setters` and `action creators`
 
 ## Arguments
 
-  `definition: Object` 
-
   ```ts
-  {
+  definition = {
     namespace: String,
     iniState?: Object,
     reducers?: Map<ReducerFunction>,
     singleton?: Boolean,
-  }
+  } : ModelInterface
   ```
 
 1. `namespace: String`
