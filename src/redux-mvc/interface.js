@@ -7,7 +7,7 @@ export const ModelInterface = {
     singleton: false,
 }
 
-export const moduleInterface = {
+export const ModuleInterface = {
     ...ModelInterface,
     modules: {},
     middleware: {},

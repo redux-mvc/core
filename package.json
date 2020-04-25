@@ -2,8 +2,8 @@
     "name": "redux-mvc",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/redux-mvc.js",
-    "module": "src/redux-mvc/index.js",
+    "main": "dist/lib/redux-mvc.js",
+    "module": "dist/es/index.js",
     "author": "Gonzalo Rafael Acosta",
     "license": "MIT",
     "private": true,
@@ -12,18 +12,25 @@
         "lint": "eslint",
         "build:dev": "webpack --config ./webpack.dev.js",
         "build:storybook": "build-storybook -c .storybook -o ./docs/html",
-        "build:lib": "NODE_ENV=production webpack --config ./webpack.lib.js",
+        "build:commonjs": "BABEL_ENV=commonjs babel src/redux-mvc --out-dir dist/lib",
+        "build:es": "babel src/redux-mvc --out-dir dist/es",
         "test": "jest",
         "all": "yarn --install --pure-lockfile && yarn lint && yarn test --coverage && yarn build:lib",
         "storybook": "start-storybook",
-        "hooks:pre-commit": "./bin/lint-staged.sh && npm run test"
+        "hooks:pre-commit": "./bin/lint-staged.sh && npm run test",
+        "clean": "rm -rf dist"
     },
     "peerDependencies": {
         "react": ">=16",
-        "redux": "^4.0.1"
+        "redux": "^2.0.0 || ^3.0.0 || ^4.0.0-0"
+    },
+    "dependencies": {
+        "@babel/runtime": "^7.9.2"
     },
     "devDependencies": {
+        "@babel/cli": "^7.8.4",
         "@babel/core": "^7.4.5",
+        "@babel/plugin-transform-react-jsx": "^7.9.4",
         "@babel/plugin-transform-runtime": "^7.5.5",
         "@babel/preset-env": "^7.4.5",
         "@babel/preset-react": "^7.0.0",
@@ -33,10 +40,9 @@
         "babel-plugin-transform-class-properties": "^6.24.1",
         "classnames": "^2.2.6",
         "clean-webpack-plugin": "^3.0.0",
-        "compression-webpack-plugin": "^3.0.0",
         "css-loader": "^3.5.2",
-        "dotenv": "^8.0.0",
         "enzyme": "^3.10.0",
+        "enzyme-adapter-react-16": "^1.15.2",
         "enzyme-react-16": "^1.0.0",
         "eslint": "^5.16.0",
         "eslint-config-prettier": "^6.0.0",
@@ -52,7 +58,7 @@
         "jest-junit": "^9.0.0",
         "prettier": "^1.14.2",
         "ramda": "^0.26.1",
-        "react": ">=16",
+        "react": "^16.8.6",
         "react-dom": "^16.8.6",
         "redux-saga": "^1.0.5",
         "storybook-readme": "^5.0.8",
@@ -61,8 +67,7 @@
         "todomvc-common": "^1.0.1",
         "webpack": "^4.36.1",
         "webpack-cli": "^3.3.6",
-        "webpack-dev-server": "^3.7.2",
-        "webpack-merge": "^4.2.1"
+        "webpack-dev-server": "^3.7.2"
     },
     "husky": {
         "hooks": {

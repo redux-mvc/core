@@ -1,13 +1,11 @@
 import React, { Component } from "react"
 
-import { getDisplayName, noop } from "./utils"
+import { path, getDisplayName, noop } from "./utils"
 import { bridge } from "./middleware"
 
 import { StoreManager } from "./context"
 
 import { GLOBAL_CONTEXT_ID, DEFAULT_INSTANCE_ID } from "./constants"
-
-const notBind = ["constructor", "componentWillUnmount"]
 
 const addBridge = ({ observedDomains, globalStore }) =>
     Boolean(globalStore) &&
@@ -15,38 +13,27 @@ const addBridge = ({ observedDomains, globalStore }) =>
 
 export const createContext = ({
     module,
-    lifeCycle = {},
-    handlers = {},
-    options: roptions,
-    contextId = Symbol("MVCContextInstance"),
+    persist = true,
+    contextId = Symbol("MVCContextId"),
+    ...options
 }) => WrappedComponent => {
-    const options = {
-        persist: true,
-        ...roptions,
-    }
-
     class WithReduxMVCContext extends Component {
         static contextType = StoreManager
 
-        handlers = {}
         unregisterStart = noop
         unregisterStop = noop
 
         constructor(props, context) {
             super(props, context)
 
-            Object.entries(handlers).forEach(([key, f]) => {
-                this.handlers[key] = f.bind(this)
-            })
-
-            Object.entries(lifeCycle).forEach(([key, f]) => {
-                if (!notBind.includes(key)) {
-                    this[key] = f.bind(this)
-                }
-            })
-
-            if (options.persist && context.moduleInstances[contextId]) {
-                this.store = context.moduleInstances[contextId]
+            if (
+                persist &&
+                path(["moduleInstances", contextId, "store"], context)
+            ) {
+                this.store = path(
+                    ["moduleInstances", contextId, "store"],
+                    context
+                )
             } else {
                 let bridgeMiddleware
 
@@ -74,17 +61,18 @@ export const createContext = ({
                 })
 
                 this.store = store
-                context.moduleInstances[contextId] = store
+                context.moduleInstances[contextId] = { store }
             }
 
-            module.emit("start")
+            module.emit("start", context.moduleInstances[contextId])
         }
 
         componentWillUnmount() {
-            module.emit("stop")
-            if (!options.persist) {
+            module.emit("stop", this.context.moduleInstances[contextId])
+            if (!persist) {
                 this.unregisterStart()
                 this.unregisterStop()
+                this.context.moduleInstances[contextId] = {}
             }
         }
 
@@ -99,7 +87,6 @@ export const createContext = ({
                     }}
                 >
                     <WrappedComponent
-                        handlers={this.handlers}
                         {...this.props}
                         instanceId={
                             this.props.instanceId || DEFAULT_INSTANCE_ID

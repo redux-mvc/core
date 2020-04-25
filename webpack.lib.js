@@ -1,24 +1,39 @@
 const path = require("path")
-const merge = require("webpack-merge")
 
-const common = require("./webpack.common.js")
-const CompressionPlugin = require("compression-webpack-plugin")
-
-module.exports = merge(common, {
-    mode: "production",
+module.exports = {
+    mode: "development",
     devtool: "source-map",
     entry: "./src/redux-mvc",
     output: {
-        path: path.join(__dirname, "dist"),
+        path: path.join(__dirname, "dist", "lib"),
         filename: "redux-mvc.js",
         library: "redux-mvc",
         libraryTarget: "umd",
     },
-    plugins: [
-        new CompressionPlugin({
-            test: /\.js(\?.*)?$/i,
-        }),
-    ],
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                loader: "babel-loader",
+                include: [path.join(__dirname, "src")],
+                options: {
+                    presets: [
+                        [
+                            "@babel/preset-env",
+                            {
+                                useBuiltIns: "entry",
+                            },
+                        ],
+                        "@babel/preset-react",
+                    ],
+                    plugins: [
+                        "transform-class-properties",
+                        "@babel/plugin-transform-runtime",
+                    ],
+                },
+            },
+        ],
+    },
     externals: {
         react: {
             commonjs: "react",
@@ -31,4 +46,7 @@ module.exports = merge(common, {
             amd: "redux",
         },
     },
-})
+    optimization: {
+        runtimeChunk: true,
+    },
+}

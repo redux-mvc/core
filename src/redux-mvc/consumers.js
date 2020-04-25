@@ -4,7 +4,6 @@ import { getDisplayName } from "./utils"
 import { StoreManager } from "./context"
 import { useModel } from "./hooks"
 
-// check how instances work
 export const connect = (selectors, actions, options = {}) => Component => {
     const WrappedComponent =
         typeof Component === "function"

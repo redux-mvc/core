@@ -28,13 +28,13 @@ export const addSagaMiddleware = rootSaga => module => {
         },
     }
 
-    newModule.on("start", () => {
-        newModule.sagaTasks = Object.values(newModule.sagas).forEach(saga =>
+    newModule.on("start", cache => {
+        cache.sagaTasks = Object.values(newModule.sagas).forEach(saga =>
             sagaMiddleware.run(saga)
         )
     })
-    newModule.on("stop", () => {
-        newModule.sagaTasks.forEach(task => task.cancel())
+    newModule.on("stop", cache => {
+        cache.sagaTasks.forEach(task => task.cancel())
     })
 
     return newModule

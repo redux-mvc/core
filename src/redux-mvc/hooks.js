@@ -1,7 +1,7 @@
 import { useContext, useMemo, useState, useEffect } from "react"
 import { StoreManager } from "./context"
 
-import { propOr, noop, diff } from "./utils"
+import { path, propOr, noop, diff } from "./utils"
 
 const getStateProps = ({ selectors, instanceId, cache, state, props }) =>
     Object.entries(selectors || {}).reduce((acc, [key, f]) => {
@@ -22,7 +22,7 @@ const getStateProps = ({ selectors, instanceId, cache, state, props }) =>
 export const useModel = (selectors, actions, props) => {
     const context = useContext(StoreManager)
     const instanceId = propOr(context.instanceId, "instanceId", props)
-    const store = context.moduleInstances[context.contextId]
+    const store = path(["moduleInstances", context.contextId, "store"], context)
     if (!store && process.env.NODE_ENV !== "production") {
         throw Error(
             "No store found for `useModel`. Please use `createContext` in a parent component."
