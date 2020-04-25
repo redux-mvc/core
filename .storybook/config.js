@@ -28,6 +28,7 @@ const loaderFn = () => [
     require(`../src/Stories/Module/module.stories.js`),
     require(`../src/Stories/Api/Model/model.stories.js`),
     require(`../src/Stories/Api/Decorators/decorators.stories.js`),
+    require(`../src/Stories/Api/Context/context.stories.js`),
 ]
 
 configure(loaderFn, module)
