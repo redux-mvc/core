@@ -34,14 +34,12 @@ module.exports = {
                             "@babel/preset-env",
                             {
                                 useBuiltIns: "entry",
+                                modules: false,
                             },
                         ],
                         "@babel/preset-react",
                     ],
-                    plugins: [
-                        "transform-class-properties",
-                        "@babel/plugin-transform-runtime",
-                    ],
+                    plugins: ["transform-class-properties"],
                 },
             },
             {

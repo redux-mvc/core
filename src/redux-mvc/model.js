@@ -102,14 +102,16 @@ export const createModel = ({
     )
     const handlers = mergeAll([setReducers, customReducers]) // reducers
 
-    return {
+    const model = {
         namespace,
         iniState: { [namespace]: { [DEFAULT_INSTANCE_ID]: iniState } },
         reducers: handlers,
         actions,
         getters,
-        namespaces: [namespace],
         singleton,
         ...props,
     }
+    model.dependencies = { [namespace]: model }
+
+    return model
 }

@@ -41,5 +41,7 @@ export const createSelector = (...args) => {
 
     selector.id = id
     selector.dependencies = dependencies
+    selector.resultFn = resultFn
+
     return selector
 }

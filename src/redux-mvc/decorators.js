@@ -4,9 +4,9 @@ import {
     path,
     pathOr,
     prop,
+    propOr,
     getActionInstanceId,
     noop,
-    identity,
     uniq,
 } from "./utils"
 
@@ -15,27 +15,22 @@ import { GLOBAL_UPDATE, DEFAULT_INSTANCE_ID } from "./constants"
 export const addReducer = () => module => ({
     ...module,
     reducer(state, action) {
-        if (action.type === "@@INIT") {
-            return mergeAll([state, module.iniState])
+        if (state === undefined) {
+            return module.iniState
         }
-        if (path(["meta", GLOBAL_UPDATE], action)) {
-            return mergeAll([state, prop(["payload"], action)])
+        if (action.type === GLOBAL_UPDATE) {
+            return mergeAll([state, prop("payload", action)])
         }
         const selectedReducer = module.reducers[action.type]
-        if (!selectedReducer) {
+        if (typeof selectedReducer !== "function") {
             return state
         }
 
         const instanceId = getActionInstanceId(
             action,
-            pathOr(
-                action.namespace === module.namespace
-                    ? module.singleton
-                    : false,
-                [action.namespace, "singleton"],
-                module.modules
-            )
+            pathOr(false, [action.namespace, "singleton"], module.dependencies)
         )
+
         const namespace = action.namespace
         const p = [namespace, instanceId]
         const oldState = pathOr(
@@ -62,32 +57,20 @@ export const addReducer = () => module => ({
     },
 })
 
-export const addBridge = ({
-    observedDomains = [],
-    dispatchToGlobal = noop,
-}) => module => ({
-    ...module,
-    observedDomains: observedDomains.length
-        ? observedDomains
-        : module.observedDomains,
-    dispatchToGlobal:
-        dispatchToGlobal === noop ? module.dispatchToGlobal : dispatchToGlobal,
-})
-
 const defaultCompose = () => compose
 
 const composeEnhancers =
     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || defaultCompose // eslint-disable-line no-underscore-dangle
 
-export const addCreateStore = (options = {}) => module => ({
+export const addLifecycle = (options = {}) => module => ({
     ...module,
-    createStore({ bridgeMiddleware }) {
-        const middleware = [
-            ...Object.values(module.middleware || {}),
-            bridgeMiddleware,
-        ].filter(identity)
+    constructor({ persist = true, moduleInstances, contextId }) {
+        if (persist && path([contextId, "store"], moduleInstances)) {
+            return moduleInstances[contextId]
+        }
+        const middleware = module.middleware || []
 
-        return createStore(
+        const store = createStore(
             module.reducer,
             module.iniState,
             composeEnhancers({
@@ -107,65 +90,64 @@ export const addCreateStore = (options = {}) => module => ({
                 ...options,
             })(applyMiddleware(...middleware))
         )
+        return { store }
+    },
+    componentWillUnmount({ persist = true, moduleInstances, contextId }) {
+        if (persist) {
+            return moduleInstances[contextId]
+        } else {
+            //eslint-disable-next-line no-unused-vars
+            const { store, ...instance } = propOr(
+                {},
+                contextId,
+                moduleInstances
+            )
+            return instance
+        }
     },
 })
+
+export const merge = left => right => {
+    const dependencies = {
+        ...left.dependencies,
+        ...right.dependencies,
+    }
+
+    return {
+        ...right,
+        dependencies,
+        iniState: { ...left.iniState, ...right.iniState },
+        reducers: { ...left.reducers, ...right.reducers },
+    }
+}
 
 const makeDispatchToGlobal = namespaces => {
     const re = new RegExp(`(${namespaces.join("|")})\/`)
     return action => !action.type.test(re)
 }
 
-export const merge = left => right => {
-    const modules = {
-        ...(left.modules || {}),
-        ...(right.modules || {}),
-        [left.namespace]: left,
-        [right.namespace]: right,
-    }
-    const namespaces = uniq([
-        ...(left.namespaces || []),
-        ...(right.namespaces || []),
-    ])
-
-    return {
-        ...left,
-        ...right,
-        modules,
-        iniState: { ...left.iniState, ...right.iniState },
-        reducers: { ...left.reducers, ...right.reducers },
-        dispatchToGlobal: makeDispatchToGlobal(namespaces),
-        observedDomains: uniq([
-            ...(left.observedDomains || []),
-            ...(right.observedDomains || []),
-        ]),
-        namespaces,
-    }
-}
-
-export const addEvents = () => module => {
-    let listeners = {}
-    return {
-        ...module,
-        on(event, f) {
-            const id = Symbol("newId")
-            listeners[event] = { ...(listeners[event] || {}), [id]: f }
-            return () => {
-                // eslint-disable-next-line no-unused-vars
-                const { [id]: remove, ...rest } = listeners[event] || {}
-                listeners[event] = rest
-            }
-        },
-        emit(event, ...params) {
-            const registry = listeners[event] || {}
-            Object.getOwnPropertySymbols(registry).forEach(id =>
-                registry[id].call(this, ...params)
-            )
-        },
-    }
-}
+export const addBridge = ({
+    observedDomains = [],
+    dispatchToGlobal = noop,
+}) => module => ({
+    observedDomains:
+        observedDomains && observedDomains.length
+            ? observedDomains
+            : uniq(
+                  Object.values(module.dependencies).reduce(
+                      (observedDomains, module) => [
+                          ...observedDomains,
+                          ...(module.observedDomains || []),
+                      ]
+                  )
+              ),
+    dispatchToGlobal:
+        typeof dispatchToGlobal === "function"
+            ? dispatchToGlobal
+            : makeDispatchToGlobal(Object.keys(module.dependencies)),
+})
 
 export const createModule = compose(
-    addCreateStore(),
-    addReducer(),
-    addEvents()
+    addLifecycle(),
+    addReducer()
 )

@@ -34,9 +34,6 @@ export const getDisplayName = WrappedComponent => {
     return WrappedComponent.displayName || WrappedComponent.name || "Component"
 }
 
-export const concatReducers = reducers => (state, action) =>
-    reducers.reduce((acc, r) => r(acc, action), state)
-
 export const capitalizeFirst = str => str[0].toUpperCase() + str.slice(1)
 
 export const isEmpty = obj => !obj || Object.keys(obj).length === 0

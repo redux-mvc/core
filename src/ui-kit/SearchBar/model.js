@@ -7,6 +7,7 @@ const iniState = {
 const model = createModel({
     iniState,
     namespace: "SearchBar",
+    singleton: true,
 })
 
 const { actions, getters } = model

@@ -1,3 +1,5 @@
+import * as R from "ramda"
+
 import React from "react"
 import { mount } from "enzyme"
 
@@ -64,9 +66,8 @@ describe("## Redux-MVC connect", () => {
     })
 
     it("Should re-render when the state is updated", () => {
-        const Div = connect({ count: CounterGetters.count })(props => (
-            <div id="div">{props.count}</div>
-        ))
+        const spy = jest.fn(props => <div id="div">{props.count}</div>)
+        const Div = connect({ count: CounterGetters.count })(spy)
         const App = createContext({
             module: counterModule,
         })(({ children }) => <div>{children}</div>)
@@ -78,11 +79,58 @@ describe("## Redux-MVC connect", () => {
         )
 
         expect(wrapper.find("#div").text()).toBe("0")
+        expect(spy.mock.calls.length).toBe(1)
 
         const instance = wrapper.instance()
         instance.store.dispatch(CounterActions.add())
 
         expect(wrapper.find("#div").text()).toBe("1")
+        expect(spy.mock.calls.length).toBe(2)
+    })
+
+    it("Should re-render if props change", () => {
+        const spy = jest.fn(props => <div id="div">{props.count}</div>)
+        const decorate = R.compose(
+            createContext({
+                module: counterModule,
+            }),
+            connect()
+        )
+        const Div = decorate(spy)
+
+        const wrapper = mount(<Div count={0} />)
+        expect(spy.mock.calls.length).toBe(1)
+
+        expect(wrapper.find("#div").text()).toBe("0")
+
+        wrapper.setProps({ count: 1 })
+        expect(wrapper.find("#div").text()).toBe("1")
+        expect(spy.mock.calls.length).toBe(2)
+    })
+
+    it("Should not re-render when the state is updated but the stateProps don't change", () => {
+        const spy = jest.fn(props => <div id="div">{props.count}</div>)
+        const Div = connect({ count: CounterGetters.count })(spy)
+        const App = createContext({
+            module: counterModule,
+        })(({ children }) => <div>{children}</div>)
+
+        const wrapper = mount(
+            <App>
+                <Div instanceId="counter" />
+            </App>
+        )
+
+        expect(wrapper.find("#div").text()).toBe("0")
+        expect(spy.mock.calls.length).toBe(1)
+
+        const instance = wrapper.instance()
+        instance.store.dispatch(
+            CounterActions.add(null, { meta: { instanceId: "counter2" } })
+        )
+
+        expect(wrapper.find("#div").text()).toBe("0")
+        expect(spy.mock.calls.length).toBe(1)
     })
 
     it("Should pass the connected state from the context instance", () => {
@@ -125,20 +173,6 @@ describe("## Redux-MVC connect", () => {
         )
 
         expect(wrapper.find("#div").text()).toBe("1")
-    })
-
-    // check issue with enzime, or check working example PassProp
-    it.skip("Should pass a prop", () => {
-        const Div = connect()(props => <div id="div">{props.sum}</div>)
-        const App = createContext({
-            module: counterModule,
-        })(({ children }) => <div>{children}</div>)
-
-        const wrapper = mount(<Div sum={1} />, { wrappingComponent: App })
-        expect(wrapper.find("#div").text()).toBe("1")
-
-        wrapper.setProps({ sum: 2 })
-        expect(wrapper.find("#div").text()).toBe("2")
     })
 
     it("Should pass the connected action", () => {
@@ -228,7 +262,6 @@ describe("## Redux-MVC connect", () => {
         })
     })
 
-    // check issue with enzime, or check working example PassProp
     it("should call getters if props change", () => {
         const fixedCount = jest.fn(() => 10)
 

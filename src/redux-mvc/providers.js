@@ -1,97 +1,72 @@
 import React, { Component } from "react"
 
-import { path, getDisplayName, noop } from "./utils"
-import { bridge } from "./middleware"
+import { getDisplayName } from "./utils"
 
 import { StoreManager } from "./context"
 
-import { GLOBAL_CONTEXT_ID, DEFAULT_INSTANCE_ID } from "./constants"
-
-const addBridge = ({ observedDomains, globalStore }) =>
-    Boolean(globalStore) &&
-    (Array.isArray(observedDomains) && observedDomains.length > 0)
+import { DEFAULT_INSTANCE_ID } from "./constants"
 
 export const createContext = ({
     module,
-    persist = true,
     contextId = Symbol("MVCContextId"),
     ...options
 }) => WrappedComponent => {
     class WithReduxMVCContext extends Component {
         static contextType = StoreManager
 
-        unregisterStart = noop
-        unregisterStop = noop
-
         constructor(props, context) {
             super(props, context)
 
-            if (
-                persist &&
-                path(["moduleInstances", contextId, "store"], context)
-            ) {
-                this.store = path(
-                    ["moduleInstances", contextId, "store"],
-                    context
-                )
-            } else {
-                let bridgeMiddleware
+            this.callLifeCycle("constructor")
+        }
 
-                if (
-                    contextId !== GLOBAL_CONTEXT_ID &&
-                    addBridge({
-                        observedDomains: module.observedDomains,
-                        globalStore: context.moduleInstances[GLOBAL_CONTEXT_ID],
-                    })
-                ) {
-                    const { middleware, unsubscribe, subscribe } = bridge(
-                        module.observedDomains || [],
-                        module.dispatchToGlobal || [],
-                        context.store
-                    )
-
-                    this.unregisterStart = module.on("start", subscribe)
-                    this.unregisterStop = module.on("stop", unsubscribe)
-                    bridgeMiddleware = middleware
-                }
-
-                const store = module.createStore({
-                    bridgeMiddleware,
-                    ...options,
-                })
-
-                this.store = store
-                context.moduleInstances[contextId] = { store }
+        updateModuleInstance(moduleInstance) {
+            if (moduleInstance) {
+                this.context.moduleInstances[contextId] = moduleInstance
+                this.store = moduleInstance.store
             }
+        }
 
-            module.emit("start", context.moduleInstances[contextId])
+        lifeCycleExists(name, module) {
+            return typeof module[name] === "function"
+        }
+
+        callLifeCycle(name, params = {}) {
+            if (this.lifeCycleExists(name, module)) {
+                this.updateModuleInstance(
+                    module[name].call(this, {
+                        moduleInstances: this.context.moduleInstances,
+                        contextId,
+                        ...options,
+                        ...params,
+                    })
+                )
+            }
+        }
+
+        componentDidCatch(error, info) {
+            this.callLifeCycle("componentDidCatch", { error, info })
+        }
+
+        componentDidMount() {
+            this.callLifeCycle("componentDidMount")
         }
 
         componentWillUnmount() {
-            module.emit("stop", this.context.moduleInstances[contextId])
-            if (!persist) {
-                this.unregisterStart()
-                this.unregisterStop()
-                this.context.moduleInstances[contextId] = {}
-            }
+            this.callLifeCycle("componentWillUnmount")
         }
 
         render() {
+            const instanceId = this.props.instanceId || DEFAULT_INSTANCE_ID
             return (
                 <StoreManager.Provider
                     value={{
                         ...this.context,
                         contextId,
-                        instanceId:
-                            this.props.instanceId || DEFAULT_INSTANCE_ID,
+                        instanceId,
                     }}
                 >
-                    <WrappedComponent
-                        {...this.props}
-                        instanceId={
-                            this.props.instanceId || DEFAULT_INSTANCE_ID
-                        }
-                    />
+                    <WrappedComponent {...this.props} instanceId={instanceId} />
                 </StoreManager.Provider>
             )
         }

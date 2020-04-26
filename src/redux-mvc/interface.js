@@ -5,11 +5,11 @@ export const ModelInterface = {
     iniState: {},
     reducers: {},
     singleton: false,
+    dependencies: {},
 }
 
 export const ModuleInterface = {
     ...ModelInterface,
-    modules: {},
     middleware: {},
     observedDomains: [],
     reducer(state, action) {},

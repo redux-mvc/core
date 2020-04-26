@@ -6,7 +6,6 @@ import { StoreManager } from "./context"
 import { DEFAULT_INSTANCE_ID } from "./constants"
 
 import counterModule from "ui-kit/Counter"
-import Counter from "ui-kit/Counter/View"
 
 describe("## Redux-MVC context", () => {
     it("Should pass the default instance id", () => {
@@ -87,49 +86,5 @@ describe("## Redux-MVC context", () => {
                 subscribe: expect.any(Function),
             })
         )
-    })
-
-    it("Should keep the state when unmounted by default `options.persist`", () => {
-        const decorate = createContext({
-            module: counterModule,
-            options: {},
-        })
-
-        const App = decorate("div")
-
-        const wrapper = mount(<Counter />, { wrappingComponent: App })
-
-        expect(wrapper.text()).toContain("0")
-
-        wrapper.find('[data-test-id="add"]').simulate("click")
-        expect(wrapper.text()).toContain("1")
-        wrapper.unmount()
-
-        const wrapper2 = mount(<Counter />, {
-            wrappingComponent: App,
-        })
-        expect(wrapper2.text()).toContain("1")
-    })
-
-    it.skip("Should erase the state when unmounted `options.persist = false`", () => {
-        const decorate = createContext({
-            module: counterModule,
-            options: { persist: false },
-        })
-
-        const App = decorate("div")
-
-        const wrapper = mount(<Counter />, { wrappingComponent: App })
-
-        expect(wrapper.text()).toContain("0")
-
-        wrapper.find('[data-test-id="add"]').simulate("click")
-        expect(wrapper.text()).toContain("1")
-        wrapper.unmount()
-
-        const wrapper2 = mount(<Counter />, {
-            wrappingComponent: App,
-        })
-        expect(wrapper2.text()).toContain("0")
     })
 })
