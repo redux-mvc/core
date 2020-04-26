@@ -1,68 +1,100 @@
 import * as R from "ramda"
 
-import {
-    addCreateStore,
-    addReducer,
-    addEvents,
-    merge as MVCmerge,
-} from "redux-mvc"
+import { createStore, applyMiddleware } from "redux"
+import { addReducer } from "redux-mvc"
 import createSagaMiddleware from "redux-saga"
 
 /*
 
-  addSagaMiddleware decorator
+  addSaga decorator
 
 */
 
-export const addSagaMiddleware = rootSaga => module => {
-    const sagaMiddleware = createSagaMiddleware()
-
-    const newModule = {
-        ...module,
-        sagas: rootSaga
-            ? { ...(module.sagas || {}), [module.namespace]: rootSaga }
-            : module.sagas || {},
-        middleware: {
-            ...(module.middleware || {}),
-            sagaMiddleware: sagaMiddleware,
-        },
-    }
-
-    newModule.on("start", cache => {
-        cache.sagaTasks = Object.values(newModule.sagas).forEach(saga =>
-            sagaMiddleware.run(saga)
-        )
-    })
-    newModule.on("stop", cache => {
-        cache.sagaTasks.forEach(task => task.cancel())
-    })
-
-    return newModule
-}
+export const addSaga = rootSaga => module => ({
+    ...module,
+    saga: rootSaga,
+})
 
 /*
 
   In order to use the new decorator *addSagaMiddleware* we need to rewrite
-  the merge and createModule decorators also.
+  the addLifecycle and createModule decorators also.
 
 */
 
-export const merge = right => left => {
-    const newModule = MVCmerge(right)(left)
+const defaultCompose = R.always(R.compose)
 
-    newModule.sagas = {
-        ...(left.sagas || {}),
-        ...(right.sagas || {}),
-    }
-    return newModule
-}
+const composeEnhancers =
+    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || defaultCompose // eslint-disable-line no-underscore-dangle
+
+export const addLifecycle = (options = {}) => module => ({
+    ...module,
+    constructor({ persist = true, moduleInstances, contextId }) {
+        const moduleInstance = R.propOr({}, contextId)
+
+        const sagaMiddleware = createSagaMiddleware()
+
+        if (persist && R.prop("store", moduleInstance)) {
+            const sagaTasks = R.map(
+                saga => sagaMiddleware.run(saga),
+                R.prop("sagas", moduleInstances)
+            )
+            return { ...moduleInstance, sagaTasks }
+        }
+        const sagas = R.filter(
+            R.identity,
+            R.append(
+                module.saga,
+                R.map(R.prop("saga"), Object.values(module.modules || {}))
+            )
+        )
+
+        const store = createStore(
+            module.reducer,
+            module.iniState,
+            composeEnhancers({
+                name: module.namespace,
+                serialize: {
+                    replacer: (key, value) => {
+                        if (
+                            value &&
+                            value.dispatchConfig &&
+                            value._targetInst // eslint-disable-line
+                        ) {
+                            return "[EVENT]"
+                        }
+                        return value
+                    },
+                },
+                ...options,
+            })(applyMiddleware(sagaMiddleware))
+        )
+
+        const sagaTasks = R.map(saga => sagaMiddleware.run(saga), sagas)
+        return { store, sagaTasks, sagas }
+    },
+    componentWillUnmount({ persist = true, moduleInstances, contextId }) {
+        // eslint-disable-next-line no-unused-vars
+        const { store, sagaTasks = [], ...instance } = R.propOr(
+            {},
+            contextId,
+            moduleInstances
+        )
+        sagaTasks.forEach(task => task.cancel())
+
+        if (persist) {
+            return moduleInstances[contextId]
+        } else {
+            return instance
+        }
+    },
+})
 
 export const createModule = rootSaga =>
     R.compose(
-        addCreateStore(),
+        addLifecycle(),
         addReducer(),
-        addSagaMiddleware(rootSaga),
-        addEvents()
+        addSaga(rootSaga)
     )
 
 export const noop = () => {}

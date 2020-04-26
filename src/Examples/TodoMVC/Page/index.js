@@ -1,5 +1,6 @@
 import * as R from "ramda"
-import { createModule, merge } from "App/utils"
+import { createModule } from "App/utils"
+import { merge } from "redux-mvc"
 
 import model from "./model"
 
