@@ -33,7 +33,13 @@ export const addReducer = () => module => ({
 
         const instanceId = getActionInstanceId(
             action,
-            pathOr(false, [action.namespace, "singleton"], module.dependencies)
+            pathOr(
+                action.namespace === module.namespace
+                    ? module.singleton
+                    : false,
+                [action.namespace, "singleton"],
+                module.dependencies
+            )
         )
 
         const namespace = action.namespace
@@ -136,9 +142,9 @@ export const addLifecycle = (options = {}) => module => ({
 
     componentWillUnmount({ persist = true, moduleInstances, contextId }) {
         const moduleInstance = moduleInstances[contextId]
-        if (moduleInstance.bridgeMiddleware) {
-            moduleInstance.bridgeMiddleware.unbind()
-        }
+        // if (moduleInstance.bridgeMiddleware) {
+        //     moduleInstance.bridgeMiddleware.unbind()
+        // }
         if (persist) {
             moduleInstance.lastState = moduleInstance.store.getState()
 
@@ -155,6 +161,7 @@ export const merge = left => right => {
     const dependencies = {
         ...left.dependencies,
         ...right.dependencies,
+        [left.namespace]: left,
     }
 
     return {
@@ -181,13 +188,19 @@ export const addBridge = ({
                   (trackGlobalNamespaces, module) => [
                       ...trackGlobalNamespaces,
                       ...(module.trackGlobalNamespaces || []),
-                  ]
+                  ],
+                  module.trackGlobalNamespaces || []
               )
           ),
     dispatchToGlobal:
         typeof dispatchToGlobal === "function"
             ? dispatchToGlobal
-            : makeDispatchToGlobal(Object.keys(module.dependencies)),
+            : makeDispatchToGlobal(
+                  uniq([
+                      ...Object.keys(module.dependencies || {}),
+                      module.namespace,
+                  ])
+              ),
 })
 
 export const createModule = compose(

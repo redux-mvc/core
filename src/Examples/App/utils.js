@@ -45,7 +45,7 @@ export const addLifecycle = (options = {}) => module => ({
             R.identity,
             R.append(
                 module.saga,
-                R.map(R.prop("saga"), Object.values(module.modules || {}))
+                R.map(R.prop("saga"), Object.values(module.dependencies || {}))
             )
         )
 

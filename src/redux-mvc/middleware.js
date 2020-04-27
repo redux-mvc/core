@@ -26,13 +26,15 @@ export const makeBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
             return next => action => {
                 const nextAction = next(action)
 
+                const listeners = Object.values(globalInstance.listenres)
+                if (listeners.length === 0) {
+                    return nextAction
+                }
+
                 const nextState = store.getState()
 
                 if (diff(lastState, nextState)) {
-                    for (const {
-                        dispatch,
-                        trackGlobalNamespaces,
-                    } in globalInstance.listeners) {
+                    listeners.forEach(({ dispatch, trackGlobalNamespaces }) => {
                         if (diff(lastState, nextState, trackGlobalNamespaces)) {
                             dispatch(
                                 globalUpdate(
@@ -41,7 +43,7 @@ export const makeBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
                                 )
                             )
                         }
-                    }
+                    })
                     lastState = nextState
                 }
                 return nextAction

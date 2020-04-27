@@ -38,14 +38,19 @@ export const capitalizeFirst = str => str[0].toUpperCase() + str.slice(1)
 
 export const isEmpty = obj => !obj || Object.keys(obj).length === 0
 
-export const diff = (oldObj, newObj) => {
+export const diff = (oldObj, newObj, keys) => {
     if (oldObj === newObj) {
         return false
     }
+
+    const list = keys || oldObj
+
     if (typeof oldObj === "object" && typeof newObj === "object") {
-        for (const key in oldObj) {
-            if (oldObj[key] !== newObj[key]) {
-                return true
+        if (Object.keys(oldObj).length === Object.keys(newObj).length) {
+            for (const key in list) {
+                if (oldObj[key] !== newObj[key]) {
+                    return true
+                }
             }
         }
     }
@@ -54,3 +59,10 @@ export const diff = (oldObj, newObj) => {
 
 export const uniq = arr =>
     Object.values(arr.reduce((acc, key) => ({ ...acc, [key]: key }), {}))
+
+export const pick = (arr, obj) =>
+    Array.isArray(arr) && obj
+        ? arr.reduce((pick, key) => {
+              pick[key] = obj[key]
+          }, {})
+        : {}

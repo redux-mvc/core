@@ -22,7 +22,7 @@ Should be executed after any `merge` decorator if you want to override the defau
 
    The array of namespace dependencies from the *global context*.
    
-   If `trackGlobalNamespaces` is not passed, then *addBridge* will take the observedDomains from all the module dependencies.
+   If `trackGlobalNamespaces` is not passed, then *addBridge* will take the `trackGlobalNamespaces` from all the module dependencies.
 
 1. `dispatchToGlobal?: (action: ActionPayload) -> Boolean`
 

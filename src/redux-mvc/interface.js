@@ -1,17 +1,23 @@
 /* eslint-disable no-unused-vars */
 
-export const ModelInterface = {
+export const ModelDefinitionInterface = {
     namespace: "",
     iniState: {},
     reducers: {},
     singleton: false,
-    dependencies: {},
+}
+
+export const ModelInterface = {
+    ...ModelDefinitionInterface,
+    actions: {},
+    getters: {},
 }
 
 export const ModuleInterface = {
     ...ModelInterface,
-    middleware: {},
     reducer(state, action) {},
+    dependencies: {},
+    middleware: {},
     trackGlobalNamespaces: [],
     dispatchToGlobal() {},
     constructor() {},

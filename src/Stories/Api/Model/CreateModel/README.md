@@ -10,7 +10,7 @@ Creates a `redux-mvc` model: `getters`, `setters` and `action creators`
     iniState?: Object,
     reducers?: Map<ReducerFunction>,
     singleton?: Boolean,
-  } : ModelInterface
+  } : ModelDefinitionInterface
   ```
 
 1. `namespace: String`
@@ -52,6 +52,5 @@ Creates a `redux-mvc` model: `getters`, `setters` and `action creators`
     singleton: Boolean,
     actions: Map<ActionCreator>,
     getters: Map<Getter>,
-    dependencies: Map<ModelInterface | ModuleInterface>
   }
   ```
