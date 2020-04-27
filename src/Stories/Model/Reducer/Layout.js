@@ -1,9 +1,9 @@
 import React from "react"
 import { createContext, connect } from "redux-mvc"
 
-import counterModule from "./index"
-import { getters, modelCode } from "./model"
-import Counter, { viewCode } from "./View"
+import counterModule from "ui-kit/Counter"
+import { getters, modelCode } from "ui-kit/Counter/model"
+import Counter, { viewCode } from "ui-kit/Counter/View"
 
 import {
     Row,

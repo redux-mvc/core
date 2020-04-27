@@ -11,17 +11,17 @@ storiesOf("Context Api", module)
             codeTheme: "atom-one-light",
         },
     })
-    .add("Provider", () => <div />, {
+    .add("createContext", () => <div />, {
         readme: {
             content: ProviderDocs,
         },
     })
-    .add("Consumer", () => <div />, {
+    .add("connect", () => <div />, {
         readme: {
             content: ConsumerDocs,
         },
     })
-    .add("UseModel", () => <div />, {
+    .add("useModel", () => <div />, {
         readme: {
             content: UseModelDocs,
         },

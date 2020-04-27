@@ -11,10 +11,11 @@ export const ModelInterface = {
 export const ModuleInterface = {
     ...ModelInterface,
     middleware: {},
-    observedDomains: [],
     reducer(state, action) {},
-    createStore({ bridgeMiddleware }) {},
-    dispatchToGlobal(action) {},
-    on(event, handler) {},
-    emit(event, ...params) {},
+    observedDomains: [],
+    dispatchToGlobal() {},
+    constructor() {},
+    componentDidCatch() {},
+    componentDidMount() {},
+    componentWillUnmount() {},
 }

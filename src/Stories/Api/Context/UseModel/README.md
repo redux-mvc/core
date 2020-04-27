@@ -30,7 +30,7 @@ const { items, toggleItem } = useModel({
 
 ```js
 const modelProps = {
-  ...selectorPropsResult: Map<Any>,
+  ...selectorProps: Map<Any>,
   ...wrappedActionProps: Map<Dispatch<ActionCreator>>,
   instanceId: String
 } : ModelPropsInterface

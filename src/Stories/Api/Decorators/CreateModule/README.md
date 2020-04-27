@@ -2,7 +2,7 @@
 
 Helper.
 
-Applies `addEvents`, `addReducer` and `addCreateStore` in that order to create a module.
+Applies `addReducer` and `addLifecycle` in that order to create a module.
 
 ## Use
 
@@ -26,8 +26,6 @@ const newModule = R.compose(
 
 ``` 
 
-**Note:** as `createModule` should be executed after all other *decorators* they will not be able to attatch listeners to the module for lifecycle.
-
 ## Arguments
 
 1. `model: ModelInterface`
@@ -38,9 +36,8 @@ const newModule = R.compose(
 newModule = {
     ...model,
     reducer(state, action) {...},
-    createStore({ bridgeMiddleware }) {},
-    emit(event, ...params) {...},
-    on(event, handler) {...},
+    constructor() {}, // creates the store object
+    componentWillUnmount() {} // creates the store object
 } : ModuleInterface
 
 ```

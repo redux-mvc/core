@@ -38,7 +38,7 @@ Creates a `redux-mvc` model: `getters`, `setters` and `action creators`
 
 4. `singleton?: Boolean`
 
-  Defines if the model is singleton. Meaning that every action goes to the default instance, and every getter returns the state of the default instance.
+  Defines if the model is a singleton, one per each context. Meaning that every action goes to the default instance, and every getter returns the state of the default instance.
 
   * Default: `false`
 
@@ -49,9 +49,9 @@ Creates a `redux-mvc` model: `getters`, `setters` and `action creators`
     namespace: String,
     iniState: Object,
     reducers: Map<ReducerFunction>,
+    singleton: Boolean,
     actions: Map<ActionCreator>,
     getters: Map<Getter>,
-    namespaces: Array<String>,
-    singleton: Boolean,
+    dependencies: Map<ModelInterface | ModuleInterface>
   }
   ```

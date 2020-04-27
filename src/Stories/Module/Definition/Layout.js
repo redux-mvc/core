@@ -1,9 +1,9 @@
 import React from "react"
 import { createContext, connect } from "redux-mvc"
 
-import textModule, { moduleCode } from "./index"
-import { getters, modelCode } from "./model"
-import Text, { viewCode } from "./View"
+import counterModule, { moduleCode } from "ui-kit/Counter"
+import { getters, modelCode } from "ui-kit/Counter/model"
+import View, { viewCode } from "ui-kit/Counter/View"
 
 import {
     Row,
@@ -25,7 +25,7 @@ const files = [
 ]
 
 const decorate = createContext({
-    module: textModule,
+    module: counterModule,
 })
 
 const TextModule = ({ style }) => (
@@ -37,7 +37,7 @@ const TextModule = ({ style }) => (
             ...style,
         }}
     >
-        <Text />
+        <View />
     </Row>
 )
 

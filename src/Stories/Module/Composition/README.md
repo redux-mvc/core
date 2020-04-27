@@ -11,12 +11,11 @@
 
   ```js
   const CounterAndSearchbar = R.compose(
-      addReducer(),
-      addCreateStore(),
-      addEvents(),
+      createModule,
+      ...
       merge(counter),
       merge(searchBar)
-  )
+  )(model)
 
   ```
 

@@ -1,6 +1,6 @@
-# merge(rightModule)(leftModule)
+# merge(leftModule)(rightModule)
 
-Merges `redux-mvc` from right to left:
+Merges `redux-mvc` modules from right to left:
 
 ## Use
 
@@ -20,13 +20,10 @@ const newModule = R.compose(
 
 ```js
 newModule = {
-    ...leftModule,
     ...rightModule,
-    modules: {...left.modules, ...right.modules },
+    dependencies: {...left.dependencies, ...right.dependencies },
     iniState: { ...left.iniState, ...right.iniState },
     reducers: { ...left.reducers, ...right.reducers },
-    dispatchToGlobal, // create default dispatch to global
-    observedDomains, // merge all observedDomains
 } : ModuleInterface
 
 ```

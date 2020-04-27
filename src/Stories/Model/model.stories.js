@@ -17,9 +17,11 @@ storiesOf("1 - Model", module)
         readme: {
             content: IniStateDocs,
         },
+        id: "Model/IniState",
     })
     .add("Reducer", () => <Reducer />, {
         readme: {
             content: ReducerDocs,
         },
+        id: "Model/Reducer",
     })

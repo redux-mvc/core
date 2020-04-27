@@ -1,9 +1,8 @@
 import React from "react"
 import { storiesOf } from "@storybook/react"
 
-import AddEventsDocs from "./AddEvents/README.md"
 import AddReducerDocs from "./AddReducer/README.md"
-import AddCreateStoreDocs from "./AddCreateStore/README.md"
+import AddLifecycleDocs from "./AddLifecycle/README.md"
 import MergeDocs from "./Merge/README.md"
 import BridgeDocs from "./AddBridge/README.md"
 import CreateModuleDocs from "./CreateModule/README.md"
@@ -14,19 +13,14 @@ storiesOf("Decorators Api", module)
             codeTheme: "atom-one-light",
         },
     })
-    .add("addEvents", () => <div />, {
-        readme: {
-            content: AddEventsDocs,
-        },
-    })
     .add("addReducer", () => <div />, {
         readme: {
             content: AddReducerDocs,
         },
     })
-    .add("addCreateStore", () => <div />, {
+    .add("addLifecycle", () => <div />, {
         readme: {
-            content: AddCreateStoreDocs,
+            content: AddLifecycleDocs,
         },
     })
     .add("merge", () => <div />, {
