@@ -1,9 +1,9 @@
-import { pick, diff } from "./utils"
+import { pick, diff, has } from "./utils"
 import { GLOBAL_UPDATE } from "./constants"
 
 const globalUpdate = (action, state) => ({
     ...action,
-    meta: { ...action.meta, [GLOBAL_UPDATE]: state },
+    meta: { ...(action.meta || {}), [GLOBAL_UPDATE]: state },
 })
 
 export const makeBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
@@ -11,7 +11,10 @@ export const makeBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
     if (moduleInstance !== globalInstance) {
         // eslint-disable-next-line no-unused-vars
         middleware = store => next => action => {
-            if (moduleInstance.dispatchToGlobal(action)) {
+            if (
+                !has(["meta", GLOBAL_UPDATE], action) &&
+                moduleInstance.dispatchToGlobal(action)
+            ) {
                 return (
                     globalInstance &&
                     globalInstance.store &&

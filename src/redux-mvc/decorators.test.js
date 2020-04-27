@@ -1,5 +1,5 @@
-import counterModel from "ui-kit/Counter/model"
-import searchBarModel from "ui-kit/SearchBar/model"
+import counterModel from "Examples/ui-kit/Counter/model"
+import searchBarModel from "Examples/ui-kit/SearchBar/model"
 
 import { addReducer } from "./decorators"
 
@@ -75,8 +75,9 @@ describe("## Redux-MVC decorators", () => {
             const module = addReducer()(searchBarModel)
 
             const nextState = module.reducer(module.iniState, {
-                type: GLOBAL_UPDATE,
-                payload: { user: "user" },
+                type: "action",
+                payload: { newUser: "user" },
+                meta: { [GLOBAL_UPDATE]: { user: "user" } },
             })
 
             expect(nextState.user).toBe("user")

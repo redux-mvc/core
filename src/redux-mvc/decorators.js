@@ -3,7 +3,6 @@ import {
     mergeAll,
     path,
     pathOr,
-    prop,
     getActionInstanceId,
     noop,
     uniq,
@@ -23,8 +22,9 @@ export const addReducer = () => module => ({
         if (state === undefined) {
             return module.iniState
         }
-        if (action.type === GLOBAL_UPDATE) {
-            return mergeAll([state, prop("payload", action)])
+        const globalUpdate = path(["meta", GLOBAL_UPDATE], action)
+        if (globalUpdate) {
+            return mergeAll([state, globalUpdate])
         }
         const selectedReducer = module.reducers[action.type]
         if (typeof selectedReducer !== "function") {
@@ -68,11 +68,6 @@ export const addReducer = () => module => ({
     },
 })
 
-const defaultCompose = () => compose
-
-const composeEnhancers =
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || defaultCompose // eslint-disable-line no-underscore-dangle
-
 const applyBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
     if (!globalInstance) {
         return false
@@ -92,12 +87,24 @@ const applyBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
     return false
 }
 
+const defaultCompose = () => compose
+
+const composeEnhancers =
+    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || defaultCompose // eslint-disable-line no-underscore-dangle
+
 export const addLifecycle = (options = {}) => module => ({
     ...module,
     constructor({ persist = true, moduleInstances, contextId }) {
-        const moduleInstance = persist
-            ? moduleInstances[contextId] || { ...module }
-            : { ...module }
+        if (persist && moduleInstances[contextId]) {
+            const bridgeMiddleware = moduleInstances[contextId].bridgeMiddleware
+            if (bridgeMiddleware) {
+                bridgeMiddleware.bind()
+            }
+
+            return moduleInstances[contextId]
+        }
+
+        const moduleInstance = moduleInstances[contextId] || { ...module }
         const middleware = Object.values(module.middleware || {})
 
         const globalInstance = moduleInstances[GLOBAL_CONTEXT_ID]
@@ -112,9 +119,7 @@ export const addLifecycle = (options = {}) => module => ({
 
         moduleInstance.store = createStore(
             module.reducer,
-            persist
-                ? moduleInstance.lastState || module.iniState
-                : module.iniState,
+            module.iniState,
             composeEnhancers({
                 name: module.namespace,
                 serialize: {
@@ -142,12 +147,10 @@ export const addLifecycle = (options = {}) => module => ({
 
     componentWillUnmount({ persist = true, moduleInstances, contextId }) {
         const moduleInstance = moduleInstances[contextId]
-        // if (moduleInstance.bridgeMiddleware) {
-        //     moduleInstance.bridgeMiddleware.unbind()
-        // }
+        if (moduleInstance.bridgeMiddleware) {
+            moduleInstance.bridgeMiddleware.unbind()
+        }
         if (persist) {
-            moduleInstance.lastState = moduleInstance.store.getState()
-
             return moduleInstance
         } else {
             //eslint-disable-next-line no-unused-vars

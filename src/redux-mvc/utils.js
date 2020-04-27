@@ -16,6 +16,10 @@ export const pathOr = (or, path, val) =>
     path.reduce((acc, key) => prop(key, acc), val) || or
 
 export const path = (...args) => pathOr(undefined, ...args)
+
+const EMPTY = Symbol("empty")
+export const has = (...args) => pathOr(EMPTY, ...args) !== EMPTY
+
 export const mergeAll = all =>
     all.reduce((acc, val) => ({ ...acc, ...(val || {}) }), {})
 

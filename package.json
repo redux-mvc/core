@@ -8,7 +8,7 @@
     "license": "MIT",
     "private": true,
     "scripts": {
-        "dev": "node -r dotenv/config node_modules/.bin/webpack-dev-server --open --config ./webpack.dev.js --hot",
+        "dev": "webpack-dev-server --open --config ./webpack.dev.js --hot",
         "lint": "eslint",
         "build:dev": "webpack --config ./webpack.dev.js",
         "build:storybook": "build-storybook -c .storybook -o ./docs/html",

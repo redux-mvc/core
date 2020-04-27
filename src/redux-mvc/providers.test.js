@@ -5,7 +5,7 @@ import { createContext } from "./providers"
 import { StoreManager } from "./context"
 import { DEFAULT_INSTANCE_ID } from "./constants"
 
-import counterModule from "ui-kit/Counter"
+import counterModule from "Examples/ui-kit/Counter/index"
 
 describe("## Redux-MVC context", () => {
     it("Should pass the default instance id", () => {

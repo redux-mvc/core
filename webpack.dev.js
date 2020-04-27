@@ -14,6 +14,7 @@ module.exports = {
         alias: {
             TodoMVC: path.join(__dirname, "src", "Examples", "TodoMVC"),
             App: path.join(__dirname, "src", "Examples", "App"),
+            "ui-kit": path.join(__dirname, "src", "Examples", "ui-kit"),
         },
     },
     plugins: [

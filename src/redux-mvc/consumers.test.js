@@ -6,12 +6,12 @@ import { mount } from "enzyme"
 import { createContext } from "./providers"
 import { connect } from "./consumers"
 
-import counterModule from "ui-kit/Counter"
+import counterModule from "Examples/ui-kit/Counter/index"
 
 import {
     actions as CounterActions,
     getters as CounterGetters,
-} from "ui-kit/Counter/model"
+} from "Examples/ui-kit/Counter/model"
 
 describe("## Redux-MVC connect", () => {
     it("Should pass the context instance as props", () => {
