@@ -12,7 +12,7 @@ export const ModuleInterface = {
     ...ModelInterface,
     middleware: {},
     reducer(state, action) {},
-    observedDomains: [],
+    trackGlobalNamespaces: [],
     dispatchToGlobal() {},
     constructor() {},
     componentDidCatch() {},

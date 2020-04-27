@@ -4,13 +4,18 @@ import {
     path,
     pathOr,
     prop,
-    propOr,
     getActionInstanceId,
     noop,
     uniq,
 } from "./utils"
 
-import { GLOBAL_UPDATE, DEFAULT_INSTANCE_ID } from "./constants"
+import {
+    GLOBAL_CONTEXT_ID,
+    GLOBAL_UPDATE,
+    DEFAULT_INSTANCE_ID,
+} from "./constants"
+
+import { makeBridgeMiddleware } from "./middleware"
 
 export const addReducer = () => module => ({
     ...module,
@@ -62,17 +67,48 @@ const defaultCompose = () => compose
 const composeEnhancers =
     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || defaultCompose // eslint-disable-line no-underscore-dangle
 
+const applyBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
+    if (!globalInstance) {
+        return false
+    }
+    if (moduleInstance === globalInstance) {
+        return true
+    }
+    if (
+        moduleInstance.trackGlobalNamespaces &&
+        moduleInstance.trackGlobalNamespaces.length
+    ) {
+        return true
+    }
+    if (typeof moduleInstance.dispatchtoGlobal === "function") {
+        return true
+    }
+    return false
+}
+
 export const addLifecycle = (options = {}) => module => ({
     ...module,
     constructor({ persist = true, moduleInstances, contextId }) {
-        if (persist && path([contextId, "store"], moduleInstances)) {
-            return moduleInstances[contextId]
-        }
-        const middleware = module.middleware || []
+        const moduleInstance = persist
+            ? moduleInstances[contextId] || { ...module }
+            : { ...module }
+        const middleware = Object.values(module.middleware || {})
 
-        const store = createStore(
+        const globalInstance = moduleInstances[GLOBAL_CONTEXT_ID]
+
+        if (applyBridgeMiddleware({ moduleInstance, globalInstance })) {
+            moduleInstance.bridgeMiddleware = makeBridgeMiddleware({
+                moduleInstance,
+                globalInstance,
+            })
+            middleware.push(moduleInstance.bridgeMiddleware)
+        }
+
+        moduleInstance.store = createStore(
             module.reducer,
-            module.iniState,
+            persist
+                ? moduleInstance.lastState || module.iniState
+                : module.iniState,
             composeEnhancers({
                 name: module.namespace,
                 serialize: {
@@ -90,19 +126,27 @@ export const addLifecycle = (options = {}) => module => ({
                 ...options,
             })(applyMiddleware(...middleware))
         )
-        return { store }
+
+        if (moduleInstance.bridgeMiddleware) {
+            moduleInstance.bridgeMiddleware.bind()
+        }
+
+        return moduleInstance
     },
+
     componentWillUnmount({ persist = true, moduleInstances, contextId }) {
+        const moduleInstance = moduleInstances[contextId]
+        if (moduleInstance.bridgeMiddleware) {
+            moduleInstance.bridgeMiddleware.unbind()
+        }
         if (persist) {
-            return moduleInstances[contextId]
+            moduleInstance.lastState = moduleInstance.store.getState()
+
+            return moduleInstance
         } else {
             //eslint-disable-next-line no-unused-vars
-            const { store, ...instance } = propOr(
-                {},
-                contextId,
-                moduleInstances
-            )
-            return instance
+            const { lastState, ...moduleInstance } = moduleInstances[contextId]
+            return moduleInstance
         }
     },
 })
@@ -127,20 +171,19 @@ const makeDispatchToGlobal = namespaces => {
 }
 
 export const addBridge = ({
-    observedDomains = [],
+    trackGlobalNamespaces = [],
     dispatchToGlobal = noop,
 }) => module => ({
-    observedDomains:
-        observedDomains && observedDomains.length
-            ? observedDomains
-            : uniq(
-                  Object.values(module.dependencies).reduce(
-                      (observedDomains, module) => [
-                          ...observedDomains,
-                          ...(module.observedDomains || []),
-                      ]
-                  )
-              ),
+    trackGlobalNamespaces: Array.isArray(trackGlobalNamespaces)
+        ? trackGlobalNamespaces
+        : uniq(
+              Object.values(module.dependencies).reduce(
+                  (trackGlobalNamespaces, module) => [
+                      ...trackGlobalNamespaces,
+                      ...(module.trackGlobalNamespaces || []),
+                  ]
+              )
+          ),
     dispatchToGlobal:
         typeof dispatchToGlobal === "function"
             ? dispatchToGlobal

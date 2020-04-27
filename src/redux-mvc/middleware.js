@@ -1,64 +1,80 @@
-import * as R from "ramda"
-import { noop } from "./utils"
+import { pick, diff } from "./utils"
 import { GLOBAL_UPDATE } from "./constants"
 
-const makeSubscribe = ({ globalStore, observedDomains, store }) => {
-    let lastState = globalStore.getState()
+const globalUpdate = (action, state) => ({
+    ...action,
+    meta: { ...action.meta, [GLOBAL_UPDATE]: state },
+})
 
-    return () => {
-        store.dispatch({
-            type: `${GLOBAL_UPDATE}/init`,
-            payload: R.pick(observedDomains, lastState),
-        })
-
-        return globalStore.subscribe(() => {
-            const newState = globalStore.getState()
-
-            observedDomains.forEach(key => {
-                if (newState[key] !== lastState[key]) {
-                    store.dispatch({
-                        type: `${GLOBAL_UPDATE}/update`,
-                        payload: R.pick(observedDomains, newState),
-                    })
-                    lastState = newState
-                    return
-                }
-            })
-        })
-    }
-}
-
-export const bridge = (observedDomains, dispatchToGlobal, globalStore) => {
-    // TODO: add validations
-
-    const filter =
-        (typeof dispatchToGlobal === "function" && dispatchToGlobal) || noop
-
-    let subscription = noop
-    let subscribe = noop
-
-    const middleware = store => {
-        subscribe = makeSubscribe({ globalStore, observedDomains, store })
-
-        if (filter !== noop) {
-            // eslint-disable-next-line consistent-return
+export const makeBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
+    let middleware = {}
+    if (moduleInstance !== globalInstance) {
+        // eslint-disable-next-line no-unused-vars
+        middleware = store => next => action => {
+            if (moduleInstance.dispatchToGlobal(action)) {
+                return (
+                    globalInstance &&
+                    globalInstance.store &&
+                    globalInstance.store.dispatch(action)
+                )
+            }
+            return next(action)
+        }
+    } else {
+        middleware = store => {
+            let lastState = store.getState()
             return next => action => {
-                if (filter(action)) {
-                    globalStore.dispatch(action)
-                } else {
-                    return next(action)
+                const nextAction = next(action)
+
+                const nextState = store.getState()
+
+                if (diff(lastState, nextState)) {
+                    for (const {
+                        dispatch,
+                        trackGlobalNamespaces,
+                    } in globalInstance.listeners) {
+                        if (diff(lastState, nextState, trackGlobalNamespaces)) {
+                            dispatch(
+                                globalUpdate(
+                                    action,
+                                    pick(trackGlobalNamespaces, nextState)
+                                )
+                            )
+                        }
+                    }
+                    lastState = nextState
+                }
+                return nextAction
+            }
+        }
+    }
+
+    middleware.bind = () => {
+        if (moduleInstance !== globalInstance) {
+            if (
+                moduleInstance.trackGlobalNamespaces &&
+                moduleInstance.trackGlobalNamespaces.length
+            ) {
+                globalInstance.listeners = {
+                    ...(globalInstance.listeners || {}),
+                    [moduleInstance.namespace]: {
+                        trackGlobalNamespaces:
+                            moduleInstance.trackGlobalNamespaces,
+                        dispatch: moduleInstance.store.dispatch,
+                    },
                 }
             }
         }
+    }
+    middleware.unbind = () => {
+        if (moduleInstance !== globalInstance) {
+            // eslint-disable-next-line no-unused-vars
+            const { [moduleInstance.namespace]: remove, ...listeners } =
+                globalInstance.listeners || {}
 
-        return R.identity
+            globalInstance.listeners = listeners
+        }
     }
 
-    return {
-        middleware,
-        subscribe: () => {
-            subscription = subscribe()
-        },
-        unsubscribe: subscription,
-    }
+    return middleware
 }

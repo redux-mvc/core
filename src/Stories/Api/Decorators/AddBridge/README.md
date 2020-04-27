@@ -1,15 +1,15 @@
-# addBridge({ observedDomains, dispatchToGlobal })(module)
+# addBridge({ trackGlobalNamespaces, dispatchToGlobal })(module)
 
-Adds the `observedDomains` array and the `dispatchToGlobal` filter function, that will later be used by the bridgeMiddleware.
+Adds the `trackGlobalNamespaces` array and the `dispatchToGlobal` filter function, that will later be used by the bridgeMiddleware.
 
 
 ## Use
 
-Should be executed after any `merge` decorator if you want to override the default `observedDomains` and `dispatchToGlobal`.
+Should be executed after any `merge` decorator if you want to override the default `trackGlobalNamespaces` and `dispatchToGlobal`.
 
   ```ts
   const newModule = R.compose(
-      addBridge({ observedDomains, dispatchToGlobal })
+      addBridge({ trackGlobalNamespaces, dispatchToGlobal })
       ...
       merge(searchBar),
   )(module)
@@ -18,11 +18,11 @@ Should be executed after any `merge` decorator if you want to override the defau
 
 ## Arguments
 
-1. `observedDomains?: Array<String>`
+1. `trackGlobalNamespaces?: Array<String>`
 
    The array of namespace dependencies from the *global context*.
    
-   If `observedDomains` is not passed, then *addBridge* will take the observedDomains from all the module dependencies.
+   If `trackGlobalNamespaces` is not passed, then *addBridge* will take the observedDomains from all the module dependencies.
 
 1. `dispatchToGlobal?: (action: ActionPayload) -> Boolean`
 
@@ -35,7 +35,7 @@ Should be executed after any `merge` decorator if you want to override the defau
   ```ts
   newModule = {
       ...module,
-      observedDomains,
+      trackGlobalNamespaces,
       dispatchToGlobal,
   } : ModuleInterface
 
