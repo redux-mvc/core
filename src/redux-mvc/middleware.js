@@ -29,7 +29,7 @@ export const makeBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
             return next => action => {
                 const nextAction = next(action)
 
-                const listeners = Object.values(globalInstance.listenres)
+                const listeners = Object.values(globalInstance.listeners || {})
                 if (listeners.length === 0) {
                     return nextAction
                 }

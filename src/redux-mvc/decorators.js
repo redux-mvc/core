@@ -1,11 +1,13 @@
 import { createStore, applyMiddleware, compose } from "redux"
 import {
     mergeAll,
+    prop,
     path,
     pathOr,
     getActionInstanceId,
-    noop,
     uniq,
+    applyBridgeMiddleware,
+    pick,
 } from "./utils"
 
 import {
@@ -68,25 +70,6 @@ export const addReducer = () => module => ({
     },
 })
 
-const applyBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
-    if (!globalInstance) {
-        return false
-    }
-    if (moduleInstance === globalInstance) {
-        return true
-    }
-    if (
-        moduleInstance.trackGlobalNamespaces &&
-        moduleInstance.trackGlobalNamespaces.length
-    ) {
-        return true
-    }
-    if (typeof moduleInstance.dispatchtoGlobal === "function") {
-        return true
-    }
-    return false
-}
-
 const defaultCompose = () => compose
 
 const composeEnhancers =
@@ -95,48 +78,66 @@ const composeEnhancers =
 export const addLifecycle = (options = {}) => module => ({
     ...module,
     constructor({ persist = true, moduleInstances, contextId }) {
-        if (persist && moduleInstances[contextId]) {
-            const bridgeMiddleware = moduleInstances[contextId].bridgeMiddleware
-            if (bridgeMiddleware) {
-                bridgeMiddleware.bind()
+        let moduleInstance = moduleInstances[contextId]
+
+        if (!moduleInstance || !persist) {
+            moduleInstance = { ...module }
+
+            moduleInstance.middleware = Object.values(module.middleware || {})
+            const globalInstance =
+                contextId === GLOBAL_CONTEXT_ID
+                    ? moduleInstance
+                    : moduleInstances[GLOBAL_CONTEXT_ID]
+
+            if (
+                applyBridgeMiddleware({
+                    moduleInstance,
+                    globalInstance,
+                })
+            ) {
+                //create bridge middleware
+                moduleInstance.bridgeMiddleware = makeBridgeMiddleware({
+                    moduleInstance,
+                    globalInstance,
+                })
+                moduleInstance.middleware.push(moduleInstance.bridgeMiddleware)
             }
 
-            return moduleInstances[contextId]
-        }
-
-        const moduleInstance = moduleInstances[contextId] || { ...module }
-        const middleware = Object.values(module.middleware || {})
-
-        const globalInstance = moduleInstances[GLOBAL_CONTEXT_ID]
-
-        if (applyBridgeMiddleware({ moduleInstance, globalInstance })) {
-            moduleInstance.bridgeMiddleware = makeBridgeMiddleware({
-                moduleInstance,
-                globalInstance,
-            })
-            middleware.push(moduleInstance.bridgeMiddleware)
-        }
-
-        moduleInstance.store = createStore(
-            module.reducer,
-            module.iniState,
-            composeEnhancers({
-                name: module.namespace,
-                serialize: {
-                    replacer: (key, value) => {
-                        if (
-                            value &&
-                            value.dispatchConfig &&
-                            value._targetInst // eslint-disable-line
-                        ) {
-                            return "[EVENT]"
-                        }
-                        return value
+            let iniState = module.iniState
+            if (
+                contextId !== GLOBAL_CONTEXT_ID &&
+                prop("store", globalInstance)
+            ) {
+                iniState = mergeAll([
+                    module.iniState,
+                    pick(
+                        module.trackGlobalNamespaces || [],
+                        globalInstance.store.getState()
+                    ),
+                ])
+            }
+            //create store
+            moduleInstance.store = createStore(
+                module.reducer,
+                iniState,
+                composeEnhancers({
+                    name: module.namespace,
+                    serialize: {
+                        replacer: (key, value) => {
+                            if (
+                                value &&
+                                value.dispatchConfig &&
+                                value._targetInst // eslint-disable-line
+                            ) {
+                                return "[EVENT]"
+                            }
+                            return value
+                        },
                     },
-                },
-                ...options,
-            })(applyMiddleware(...middleware))
-        )
+                    ...options,
+                })(applyMiddleware(...moduleInstance.middleware))
+            )
+        }
 
         if (moduleInstance.bridgeMiddleware) {
             moduleInstance.bridgeMiddleware.bind()
@@ -145,18 +146,14 @@ export const addLifecycle = (options = {}) => module => ({
         return moduleInstance
     },
 
-    componentWillUnmount({ persist = true, moduleInstances, contextId }) {
+    componentWillUnmount({ moduleInstances, contextId }) {
         const moduleInstance = moduleInstances[contextId]
+
+        //stop middleware
         if (moduleInstance.bridgeMiddleware) {
             moduleInstance.bridgeMiddleware.unbind()
         }
-        if (persist) {
-            return moduleInstance
-        } else {
-            //eslint-disable-next-line no-unused-vars
-            const { lastState, ...moduleInstance } = moduleInstances[contextId]
-            return moduleInstance
-        }
+        return moduleInstance
     },
 })
 
@@ -177,13 +174,14 @@ export const merge = left => right => {
 
 const makeDispatchToGlobal = namespaces => {
     const re = new RegExp(`(${namespaces.join("|")})\/`)
-    return action => !action.type.test(re)
+    return action => !re.test(action.type)
 }
 
 export const addBridge = ({
-    trackGlobalNamespaces = [],
-    dispatchToGlobal = noop,
-}) => module => ({
+    trackGlobalNamespaces,
+    dispatchToGlobal,
+} = {}) => module => ({
+    ...module,
     trackGlobalNamespaces: Array.isArray(trackGlobalNamespaces)
         ? trackGlobalNamespaces
         : uniq(

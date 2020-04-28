@@ -47,11 +47,11 @@ export const diff = (oldObj, newObj, keys) => {
         return false
     }
 
-    const list = keys || oldObj
+    const list = keys || Object.keys(oldObj)
 
     if (typeof oldObj === "object" && typeof newObj === "object") {
         if (Object.keys(oldObj).length === Object.keys(newObj).length) {
-            for (const key in list) {
+            for (const key of list) {
                 if (oldObj[key] !== newObj[key]) {
                     return true
                 }
@@ -68,5 +68,25 @@ export const pick = (arr, obj) =>
     Array.isArray(arr) && obj
         ? arr.reduce((pick, key) => {
               pick[key] = obj[key]
+              return pick
           }, {})
         : {}
+
+export const applyBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
+    if (!globalInstance) {
+        return false
+    }
+    if (moduleInstance === globalInstance) {
+        return true
+    }
+    if (
+        moduleInstance.trackGlobalNamespaces &&
+        moduleInstance.trackGlobalNamespaces.length
+    ) {
+        return true
+    }
+    if (typeof moduleInstance.dispatchtoGlobal === "function") {
+        return true
+    }
+    return false
+}
