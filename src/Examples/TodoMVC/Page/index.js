@@ -1,6 +1,6 @@
 import * as R from "ramda"
 import { createModule } from "App/utils"
-import { merge } from "redux-mvc"
+import { merge, addBridge } from "redux-mvc"
 
 import model from "./model"
 
@@ -11,6 +11,7 @@ import todoFilter from "TodoMVC/TodoFilter"
 
 const decorate = R.compose(
     createModule(),
+    addBridge(),
     merge(todoFilter),
     merge(todoInput),
     merge(todoItem),

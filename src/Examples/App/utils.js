@@ -1,7 +1,11 @@
 import * as R from "ramda"
 
 import { createStore, applyMiddleware } from "redux"
-import { addReducer } from "redux-mvc"
+import { addReducer } from "redux-mvc/decorators"
+import { applyBridgeMiddleware } from "redux-mvc/utils"
+import { GLOBAL_CONTEXT_ID } from "redux-mvc/constants"
+import { makeBridgeMiddleware } from "redux-mvc/middleware"
+
 import createSagaMiddleware from "redux-saga"
 
 /*
@@ -30,63 +34,107 @@ const composeEnhancers =
 export const addLifecycle = (options = {}) => module => ({
     ...module,
     constructor({ persist = true, moduleInstances, contextId }) {
-        const moduleInstance = R.propOr({}, contextId)
+        let moduleInstance = moduleInstances[contextId]
 
-        const sagaMiddleware = createSagaMiddleware()
+        if (!moduleInstance || !persist) {
+            moduleInstance = { ...module }
 
-        if (persist && R.prop("store", moduleInstance)) {
-            const sagaTasks = R.map(
-                saga => sagaMiddleware.run(saga),
-                R.prop("sagas", moduleInstances)
+            moduleInstance.middleware = Object.values(module.middleware || {})
+            const globalInstance =
+                contextId === GLOBAL_CONTEXT_ID
+                    ? moduleInstance
+                    : moduleInstances[GLOBAL_CONTEXT_ID]
+
+            if (
+                applyBridgeMiddleware({
+                    moduleInstance,
+                    globalInstance,
+                })
+            ) {
+                //create bridge middleware
+                moduleInstance.bridgeMiddleware = makeBridgeMiddleware({
+                    moduleInstance,
+                    globalInstance,
+                })
+                moduleInstance.middleware.push(moduleInstance.bridgeMiddleware)
+            }
+
+            moduleInstance.sagas = R.filter(
+                R.identity,
+                R.append(
+                    module.saga,
+                    R.map(
+                        R.prop("saga"),
+                        Object.values(module.dependencies || {})
+                    )
+                )
             )
-            return { ...moduleInstance, sagaTasks }
-        }
-        const sagas = R.filter(
-            R.identity,
-            R.append(
-                module.saga,
-                R.map(R.prop("saga"), Object.values(module.dependencies || {}))
-            )
-        )
 
-        const store = createStore(
-            module.reducer,
-            module.iniState,
-            composeEnhancers({
-                name: module.namespace,
-                serialize: {
-                    replacer: (key, value) => {
-                        if (
-                            value &&
-                            value.dispatchConfig &&
-                            value._targetInst // eslint-disable-line
-                        ) {
-                            return "[EVENT]"
-                        }
-                        return value
+            if (moduleInstance.sagas.length) {
+                //create saga middleware
+                moduleInstance.sagaMiddleware = createSagaMiddleware()
+                moduleInstance.middleware.push(moduleInstance.sagaMiddleware)
+            }
+            let iniState = module.iniState
+            if (
+                contextId !== GLOBAL_CONTEXT_ID &&
+                R.prop("store", globalInstance)
+            ) {
+                iniState = R.mergeAll([
+                    module.iniState,
+                    R.pick(
+                        module.trackGlobalNamespaces || [],
+                        globalInstance.store.getState()
+                    ),
+                ])
+            }
+            //create store
+            moduleInstance.store = createStore(
+                module.reducer,
+                iniState,
+                composeEnhancers({
+                    name: module.namespace,
+                    serialize: {
+                        replacer: (key, value) => {
+                            if (
+                                value &&
+                                value.dispatchConfig &&
+                                value._targetInst // eslint-disable-line
+                            ) {
+                                return "[EVENT]"
+                            }
+                            return value
+                        },
                     },
-                },
-                ...options,
-            })(applyMiddleware(sagaMiddleware))
-        )
-
-        const sagaTasks = R.map(saga => sagaMiddleware.run(saga), sagas)
-        return { store, sagaTasks, sagas }
-    },
-    componentWillUnmount({ persist = true, moduleInstances, contextId }) {
-        // eslint-disable-next-line no-unused-vars
-        const { store, sagaTasks = [], ...instance } = R.propOr(
-            {},
-            contextId,
-            moduleInstances
-        )
-        sagaTasks.forEach(task => task.cancel())
-
-        if (persist) {
-            return moduleInstances[contextId]
-        } else {
-            return instance
+                    ...options,
+                })(applyMiddleware(...moduleInstance.middleware))
+            )
         }
+
+        //run middleware
+        if (moduleInstance.bridgeMiddleware) {
+            moduleInstance.bridgeMiddleware.bind()
+        }
+        if (moduleInstance.sagas.length) {
+            moduleInstance.sagaTasks = moduleInstance.sagas.map(saga =>
+                moduleInstance.sagaMiddleware.run(saga)
+            )
+        }
+
+        return moduleInstance
+    },
+
+    componentWillUnmount({ moduleInstances, contextId }) {
+        const moduleInstance = moduleInstances[contextId]
+
+        //stop middleware
+        if (moduleInstance.bridgeMiddleware) {
+            moduleInstance.bridgeMiddleware.unbind()
+        }
+        if (moduleInstance.sagaTasks) {
+            moduleInstance.sagaTasks.forEach(task => task.cancel())
+        }
+        return moduleInstance
     },
 })
 

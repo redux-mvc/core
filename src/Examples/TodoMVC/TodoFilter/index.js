@@ -1,7 +1,12 @@
-import { createModule } from "redux-mvc"
+import * as R from "ramda"
+import { createModule, addBridge } from "redux-mvc"
 
-import model from "./model"
+import Model from "./model"
+import AppModel from "App/model"
 
-const module = createModule(model)
+const module = R.compose(
+    createModule,
+    addBridge({ trackGlobalNamespaces: [AppModel.namespace] })
+)(Model)
 
 export default module

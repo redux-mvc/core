@@ -15,10 +15,12 @@ const decorate = createContext({
 const App = () => (
     <>
         <Route path={/(^$|^\/$)/}>
-            <Link href="/todo-mvc">TodoMVC</Link>
+            <Link href="/todo-mvc#/">TodoMVC</Link>
         </Route>
-        <Route path={/todo-mvc/} Component={TodoMVC} />
+        <Route path={/todo-mvc.*/} Component={TodoMVC} />
     </>
 )
+
+export { Link, Route }
 
 export default decorate(App)

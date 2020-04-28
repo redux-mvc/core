@@ -2,6 +2,9 @@ import * as R from "ramda"
 import { createSelector } from "redux-mvc"
 
 import { getters as DataGetters } from "TodoMVC/Data/model"
+import { getters as AppGetters } from "App/model"
+
+import { FILTERS } from "./constants"
 
 export const getPendingCount = createSelector(
     DataGetters.all,
@@ -15,4 +18,13 @@ export const getShowClearCompleted = createSelector(
         R.lt(0),
         R.length
     )
+)
+
+export const getActiveFilter = createSelector(
+    AppGetters.hashStr,
+    // eslint-disable-next-line no-underscore-dangle
+    R.propOr(FILTERS.ALL, R.__, {
+        "#/active": FILTERS.PENDING,
+        "#/completed": FILTERS.COMPLETED,
+    })
 )

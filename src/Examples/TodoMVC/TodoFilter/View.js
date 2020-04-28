@@ -2,22 +2,26 @@ import React from "react"
 import { connect } from "redux-mvc"
 import cx from "classnames"
 
-import { getPendingCount, getShowClearCompleted } from "./selectors"
+import {
+    getPendingCount,
+    getShowClearCompleted,
+    getActiveFilter,
+} from "./selectors"
 
 import { actions as DataActions } from "TodoMVC/Data/model"
-import { actions, getters } from "./model"
 
 import { FILTERS } from "./constants"
 import { noop } from "App/utils"
 
+import Link from "App/View/Link"
+
 const decorate = connect(
     {
-        activeFilter: getters.activeFilter,
+        activeFilter: getActiveFilter,
         todoCount: getPendingCount,
         showClearCompleted: getShowClearCompleted,
     },
     {
-        setActiveFilter: actions.setActiveFilter,
         clearCompleted: DataActions.clearCompleted,
     }
 )
@@ -26,7 +30,6 @@ const TodoFilter = ({
     todoCount = 0,
     showClearCompleted = false,
     activeFilter = FILTERS.ALL,
-    setActiveFilter = noop,
     clearCompleted = noop,
 }) => (
     <footer className="footer">
@@ -35,33 +38,33 @@ const TodoFilter = ({
             {todoCount === 1 ? " item " : " items "}left
         </span>
         <ul className="filters">
-            <li onClick={() => setActiveFilter(FILTERS.ALL)}>
-                <a
-                    href="#/"
+            <li>
+                <Link
+                    href="/todo-mvc#/"
                     className={cx({ selected: activeFilter === FILTERS.ALL })}
                 >
                     All
-                </a>
+                </Link>
             </li>{" "}
-            <li onClick={() => setActiveFilter(FILTERS.PENDING)}>
-                <a
-                    href="#/active"
+            <li>
+                <Link
+                    href="/todo-mvc#/active"
                     className={cx({
                         selected: activeFilter === FILTERS.PENDING,
                     })}
                 >
                     Active
-                </a>
+                </Link>
             </li>{" "}
-            <li onClick={() => setActiveFilter(FILTERS.COMPLETED)}>
-                <a
-                    href="#/completed"
+            <li>
+                <Link
+                    href="/todo-mvc#/completed"
                     className={cx({
                         selected: activeFilter === FILTERS.COMPLETED,
                     })}
                 >
                     Completed
-                </a>
+                </Link>
             </li>
         </ul>
         {showClearCompleted > 0 && (

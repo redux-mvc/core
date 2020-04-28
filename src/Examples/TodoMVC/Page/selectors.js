@@ -2,14 +2,14 @@ import * as R from "ramda"
 import { createSelector } from "redux-mvc"
 
 import { getters as DataGetters } from "TodoMVC/Data/model"
-import { getters as FilterGetters } from "TodoMVC/TodoFilter/model"
+import * as FilterSelectors from "TodoMVC/TodoFilter/selectors"
 
 import { FILTERS } from "TodoMVC/TodoFilter/constants"
 
 export const getActiveIds = createSelector(
     DataGetters.all,
     DataGetters.completed,
-    FilterGetters.activeFilter,
+    FilterSelectors.getActiveFilter,
     (all, completed, activeFilter) =>
         R.prop(activeFilter, {
             [FILTERS.ALL]: R.always(all),

@@ -37,12 +37,22 @@ const watchLocationChanges = function*() {
 
     for (;;) {
         yield take(locationChan)
-        yield put(actions.setLocationStr(window.location.pathname))
+        yield put(
+            actions.setLocation({
+                locationStr: window.location.pathname,
+                hashStr: window.location.hash,
+            })
+        )
     }
 }
 
 const rootSaga = function*() {
-    yield put(actions.setLocationStr(window.location.pathname))
+    yield put(
+        actions.setLocation({
+            locationStr: window.location.pathname,
+            hashStr: window.location.hash,
+        })
+    )
     yield all([fork(watchNavigate), fork(watchLocationChanges)])
 }
 
