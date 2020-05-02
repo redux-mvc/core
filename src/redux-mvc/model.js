@@ -17,30 +17,26 @@ export const createModel = ({
     singleton = false,
     ...props
 }) => {
-    const setActions = Object.keys(iniState).reduce(
-        (acc, key) => {
-            const setKey = `set${capitalizeFirst(key)}`
-            const type = `${namespace + "/"}${setKey}`
+    const setActions = Object.keys(iniState).reduce((acc, key) => {
+        const setKey = `set${capitalizeFirst(key)}`
+        const type = `${namespace + "/"}${setKey}`
 
-            const action = (payload, props = {}, error = false) => ({
-                payload,
-                ...props,
-                error,
-                type,
-                namespace,
-            })
+        const action = (payload, props = {}, error = false) => ({
+            payload,
+            ...props,
+            error,
+            type,
+            namespace,
+        })
 
-            action.type = type
-            action.key = key
+        action.type = type
+        action.key = key
 
-            return {
-                ...acc,
-                [setKey]: action,
-            }
-        },
-
-        { started: identity, canceled: identity }
-    )
+        return {
+            ...acc,
+            [setKey]: action,
+        }
+    }, {})
 
     const customActions = Object.keys(reducers).reduce((acc, key) => {
         const type = `${namespace + "/"}${key}`

@@ -5,15 +5,18 @@ import { DEFAULT_INSTANCE_ID } from "./constants"
 export const identity = x => x
 export const noop = () => {}
 export const propOr = (or, prop, val) => {
-    if (val && typeof val[prop] !== "undefined") {
+    if (val && typeof val[prop] !== "undefined" && val[prop] !== null) {
         return val[prop]
     }
     return or
 }
 export const prop = (...args) => propOr(undefined, ...args)
 
-export const pathOr = (or, path, val) =>
-    path.reduce((acc, key) => prop(key, acc), val) || or
+export const pathOr = (or, path, val) => {
+    const result = path.reduce((acc, key) => prop(key, acc), val)
+
+    return typeof result !== "undefined" && result !== null ? result : or
+}
 
 export const path = (...args) => pathOr(undefined, ...args)
 
@@ -47,14 +50,22 @@ export const diff = (oldObj, newObj, keys) => {
         return false
     }
 
-    const list = keys || Object.keys(oldObj)
-
     if (typeof oldObj === "object" && typeof newObj === "object") {
-        if (Object.keys(oldObj).length === Object.keys(newObj).length) {
-            for (const key of list) {
+        if (Array.isArray(keys)) {
+            for (const key of keys) {
                 if (oldObj[key] !== newObj[key]) {
                     return true
                 }
+            }
+            return false
+        }
+
+        if (Object.keys(oldObj).length !== Object.keys(newObj).length) {
+            return true
+        }
+        for (const key in oldObj) {
+            if (oldObj[key] !== newObj[key]) {
+                return true
             }
         }
     }
@@ -85,7 +96,7 @@ export const applyBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
     ) {
         return true
     }
-    if (typeof moduleInstance.dispatchtoGlobal === "function") {
+    if (typeof moduleInstance.dispatchToGlobal === "function") {
         return true
     }
     return false

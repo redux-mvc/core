@@ -1,3 +1,5 @@
+import * as R from "ramda"
+
 import { createModel } from "redux-mvc"
 
 const iniState = {
@@ -6,6 +8,9 @@ const iniState = {
 
 const model = createModel({
     iniState,
+    reducers: {
+        identity: R.identity,
+    },
     namespace: "SearchBar",
     singleton: true,
 })

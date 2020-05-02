@@ -36,9 +36,8 @@ export const addReducer = () => module => ({
         const instanceId = getActionInstanceId(
             action,
             pathOr(
-                action.namespace === module.namespace
-                    ? module.singleton
-                    : false,
+                // if the action is not in dependencies then must be an action from the root module
+                module.singleton,
                 [action.namespace, "singleton"],
                 module.dependencies
             )
@@ -182,23 +181,23 @@ export const addBridge = ({
     dispatchToGlobal,
 } = {}) => module => ({
     ...module,
-    trackGlobalNamespaces: Array.isArray(trackGlobalNamespaces)
-        ? trackGlobalNamespaces
-        : uniq(
-              Object.values(module.dependencies).reduce(
-                  (trackGlobalNamespaces, module) => [
-                      ...trackGlobalNamespaces,
-                      ...(module.trackGlobalNamespaces || []),
-                  ],
-                  module.trackGlobalNamespaces || []
-              )
-          ),
+    trackGlobalNamespaces: uniq(
+        Object.values(module.dependencies || {}).reduce(
+            (trackGlobalNamespaces, module) => [
+                ...trackGlobalNamespaces,
+                ...(module.trackGlobalNamespaces || []),
+            ],
+            Array.isArray(trackGlobalNamespaces) ? trackGlobalNamespaces : []
+        )
+    ),
     dispatchToGlobal:
         typeof dispatchToGlobal === "function"
             ? dispatchToGlobal
             : makeDispatchToGlobal(
                   uniq([
-                      ...Object.keys(module.dependencies || {}),
+                      ...Object.values(module.dependencies || {}).map(
+                          val => val.namespace
+                      ),
                       module.namespace,
                   ])
               ),

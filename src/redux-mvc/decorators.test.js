@@ -1,7 +1,7 @@
 import counterModel from "Examples/ui-kit/Counter/model"
 import searchBarModel from "Examples/ui-kit/SearchBar/model"
 
-import { addReducer } from "./decorators"
+import { addReducer, addBridge, merge } from "./decorators"
 
 import { GLOBAL_UPDATE, DEFAULT_INSTANCE_ID } from "./constants"
 
@@ -81,6 +81,191 @@ describe("## Redux-MVC decorators", () => {
             })
 
             expect(nextState.user).toBe("user")
+        })
+        it("Should return the old state instance if the reducer is the identity", () => {
+            const module = addReducer()(searchBarModel)
+
+            const nextState = module.reducer(
+                module.iniState,
+                module.actions.identity()
+            )
+
+            expect(nextState).toEqual(module.iniState)
+        })
+    })
+
+    describe("### addBridge", () => {
+        it("Should track all `module.dependencies` trackGlobalNamespaces and append the `trackGlobalNamespaces` param", () => {
+            const mockModel = {
+                dependencies: {
+                    searchBar: { trackGlobalNamespaces: ["App", "Routing"] },
+                    miniItemsSelector: {
+                        trackGlobalNamespaces: ["Event", "Routing"],
+                    },
+                },
+                namespace: "FakeModel",
+            }
+            const module = addBridge({
+                trackGlobalNamespaces: ["App", "User"],
+            })(mockModel)
+
+            expect(module.trackGlobalNamespaces.length).toEqual(4)
+            expect(module.trackGlobalNamespaces).toEqual(
+                expect.arrayContaining(["App", "User", "Routing", "Event"])
+            )
+        })
+
+        it("Should track all `module.dependencies` trackGlobalNamespaces", () => {
+            const mockModel = {
+                dependencies: {
+                    searchBar: { trackGlobalNamespaces: ["App", "Routing"] },
+                    miniItemsSelector: {
+                        trackGlobalNamespaces: ["Event", "Routing"],
+                    },
+                },
+                namespace: "FakeModel",
+            }
+            const module = addBridge()(mockModel)
+
+            expect(module.trackGlobalNamespaces.length).toEqual(3)
+            expect(module.trackGlobalNamespaces).toEqual(
+                expect.arrayContaining(["App", "Routing", "Event"])
+            )
+        })
+
+        it("Should set the `dispatchToGlobal` function", () => {
+            const dispatchToGlobal = () => {}
+            const module = addBridge({
+                dispatchToGlobal,
+            })(searchBarModel)
+
+            expect(module).toEqual(
+                expect.objectContaining({
+                    dispatchToGlobal,
+                })
+            )
+        })
+
+        it("Should set the default `dispatchToGlobal` function when `dispatchToGlobal` param is empty", () => {
+            const mockModel = {
+                dependencies: {
+                    searchBar: { namespace: "SearchBar" },
+                    miniItemsSelector: { namespace: "MiniItemsSelector" },
+                },
+                namespace: "FakeModel",
+            }
+            const module = addBridge()(mockModel)
+
+            expect(module).toEqual(
+                expect.objectContaining({
+                    dispatchToGlobal: expect.any(Function),
+                })
+            )
+            const defaultDispatchToGlobal = module.dispatchToGlobal
+
+            expect(
+                defaultDispatchToGlobal({ type: "SearchBar/create" })
+            ).toEqual(false)
+            expect(
+                defaultDispatchToGlobal({ type: "MiniItemsSelector/setName" })
+            ).toEqual(false)
+            expect(defaultDispatchToGlobal({ type: "FakeModel/init" })).toEqual(
+                false
+            )
+            expect(defaultDispatchToGlobal({ type: "App/commit" })).toEqual(
+                true
+            )
+        })
+
+        it("Should set the default `dispatchToGlobal` even if module dependencies is empty", () => {
+            const mockModel = {
+                namespace: "FakeModel",
+            }
+            const module = addBridge()(mockModel)
+
+            expect(module).toEqual(
+                expect.objectContaining({
+                    dispatchToGlobal: expect.any(Function),
+                })
+            )
+            const defaultDispatchToGlobal = module.dispatchToGlobal
+
+            expect(defaultDispatchToGlobal({ type: "FakeModel/init" })).toEqual(
+                false
+            )
+            expect(defaultDispatchToGlobal({ type: "App/commit" })).toEqual(
+                true
+            )
+        })
+    })
+
+    describe("### merge", () => {
+        it("Should merge two modules", () => {
+            const left = {
+                namespace: "left",
+                actions: "left",
+                getters: "left",
+                reducers: { left: "" },
+                iniState: { left: "" },
+                reducer: "left",
+                dependencies: {
+                    Counter: counterModel,
+                },
+                constructor: "left",
+                componentDidCatch: "left",
+                componentWillUnmount: "left",
+                singleton: true,
+                other: "left",
+            }
+            const right = {
+                reducers: { right: "" },
+                iniState: { right: "" },
+                dependencies: {
+                    SearchBar: searchBarModel,
+                },
+            }
+            const module = merge(left)(right)
+
+            expect(module).toEqual(
+                expect.objectContaining({
+                    ...right,
+                    iniState: {
+                        ...left.iniState,
+                        ...right.iniState,
+                    },
+                    dependencies: {
+                        ...left.dependencies,
+                        ...right.dependencies,
+                        [left.namespace]: left,
+                    },
+                    reducers: {
+                        ...left.reducers,
+                        ...right.reducers,
+                    },
+                })
+            )
+            expect(module).toEqual(expect.not.objectContaining(left))
+        })
+
+        it("Should merge two modules with no dependencies", () => {
+            const module = merge(searchBarModel)(counterModel)
+
+            expect(module).toEqual(
+                expect.objectContaining({
+                    ...counterModel,
+                    iniState: {
+                        ...searchBarModel.iniState,
+                        ...counterModel.iniState,
+                    },
+                    dependencies: {
+                        [searchBarModel.namespace]: searchBarModel,
+                    },
+                    reducers: {
+                        ...searchBarModel.reducers,
+                        ...counterModel.reducers,
+                    },
+                })
+            )
         })
     })
 })

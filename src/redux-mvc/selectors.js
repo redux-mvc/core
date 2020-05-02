@@ -3,13 +3,16 @@ import { pathOr } from "./utils"
 import { EMPTY, DEFAULT_INSTANCE_ID } from "./constants"
 
 export const createSelector = (...args) => {
+    if (args.length === 1) {
+        return args[0]
+    }
     const id = Symbol("selectorId")
     const dependencies = args.slice(0, -1)
     const resultFn = args[args.length - 1]
 
     const ownCache = { [id]: {} }
 
-    const selector = (state, props, cache) => {
+    const selector = (state, props = {}, cache) => {
         const instanceId = props.instanceId || DEFAULT_INSTANCE_ID
         const selectedCache = cache || ownCache
         const newDeps = dependencies.map(dep =>
@@ -42,6 +45,7 @@ export const createSelector = (...args) => {
     selector.id = id
     selector.dependencies = dependencies
     selector.resultFn = resultFn
+    selector.ownCache = ownCache
 
     return selector
 }
