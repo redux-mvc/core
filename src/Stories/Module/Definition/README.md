@@ -21,6 +21,6 @@
   
 - This `createModule` decorator is exported from *redux-mvc* as well. 
 
-- But as this is just objects and function composition *redux-mvc* gives you the posibility of writing your own `addReducer` and `addLifecycle`, mix them and write your own `createModule`.
+- But as this is just objects and function composition *redux-mvc* gives you the possibility of writing your own `addReducer` and `addLifecycle`, mix them and write your own `createModule`.
 
 

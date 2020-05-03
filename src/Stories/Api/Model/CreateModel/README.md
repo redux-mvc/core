@@ -25,7 +25,7 @@ Creates a `redux-mvc` model: `getters`, `setters` and `action creators`
 
 3. `reducers?: Map<ReducerFunction>`
 
-  Defines the reducers with the folowing signature of the model.
+  Defines the reducers with the following signature of the model.
 
   ```ts
   ReducerFunction: (state: Object, action: ActionPayload) -> Partial<state>

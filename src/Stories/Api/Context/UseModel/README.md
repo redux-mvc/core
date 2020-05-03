@@ -2,7 +2,7 @@
 
 Hook.
 
-Consumes the `selectors` and wrapps `actions`.
+Consumes the `selectors` and wraps `actions`.
 
 ## Use
 

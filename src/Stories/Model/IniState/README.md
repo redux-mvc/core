@@ -2,7 +2,7 @@
 
 The model will be defined by the initial state and reducers, just like plain redux.
 
-The main difference is that *redux-mvc* will dinamically create *getters* and *actions*.
+The main difference is that *redux-mvc* will dynamically create *getters* and *actions*.
 
 <!-- STORY -->
 

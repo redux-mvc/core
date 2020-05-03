@@ -1,6 +1,6 @@
 # createContext(definition)(Component)
 
-Hoc.
+HOC.
 
 Creates a `redux-mvc` context, making the module store available to the childrens.
 

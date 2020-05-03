@@ -2,20 +2,31 @@
 * redux-mvc
   
   Alternative react bindings framework for Redux.
+  
   Modular, composable, reusable. 
+  
+
+** Installation
+    #+BEGIN_EXAMPLE
+    # If you use npm:
+    npm install redux-mvc
+
+    # Or if you use Yarn:
+    yarn add redux-mvc
+    #+END_EXAMPLE
   
 ** Motivations
    - Make an analogy with traditional MVC architecture.
    - Bring back separation of concerns into the game.
-   - Redux is great for separation of concers and reducing complexity, but is not modular and composable by default. Then is very hard to reuse.
-   - Chopp big redux state trees and make atomic modules.
+   - Redux is great for separation of concerns and reducing complexity, but is not modular and composable by default. Then is very hard to reuse.
+   - Chop big redux state trees and make atomic /modules/.
    - Reduce the boilerplate around creating reducers, actionCreators, selectors, and wiring it all together.
-   - Show the value of using a general but safe framework that enforces certain architecture choises.
+   - Show the value of using a general but safe framework that enforces certain architecture choices.
    - Make a modular framework to be able to customize it to your needs.
-   - Modules run when the module context component is constructed, not before like redux. 
+   - Modules run when the module /context/ component is constructed, not before like redux. 
    - Bring back code splitting for redux.
 
-** redux-mvc `new` conceps
+** redux-mvc /new/ concepts
 
 *** Model:
     The state and logic layer (namespace, reducers, getters and actions)
@@ -24,39 +35,38 @@
     The view layer (react connected? components)
 
 *** Controller:
-    Middleware layer that observes the flow of events, models the time and acts acordingly.
+    Middleware layer that observes the flow of events, models the time and acts accordingly.
     
 *** Selectors:
     Similar to reselect its the performance layer, where expensive computations are made immutable. 
-    As usual defines the derived state from the model and it's the glue between the *model* and the *view*. May aswell be part of the model.
+    As usual defines the derived state from the /model/ and it's the glue between the /model/ and the /view/. May aswell be part of the /model/.
 
 *** Module:
-    The `module` is the base unit of the architecture. It groups the model, the view and the controller and can be easily composed to form higher level modules. 
-    E.g.: mixing with the `merge` util from *redux-mvc* a tableModule with a searchBarModule and a filterModule to create a todoListModule.
+    The /module/ is the unit of the architecture. It groups the model, the view and the controller and can be easily composed to form higher level /modules/. 
+    E.g.: mixing with the /merge/ util from *redux-mvc* a tableModule with a searchBarModule and a filterModule to create a todoListModule.
 
 *** Context or createContext HOC:
-    Similar to the *react-redux* provider with the hability to persist the stores when unmounted and with the following spects:
+    Similar to the *react-redux* provider with the hability to persist the stores when unmounted and with the following specs:
     
-    - The created modules are instanciated in isolated contexts. 
-    - The context is created when the context component is constructed by react. 
-    - The context executes the regular react lifecycle methods of the module for store creation. This can be customized to your needs, *redux-saga*, *observables*, *thunks*.
-    - Then a new instance of the module is created and made available to all the childrens by using react context.
+    - The created /modules/ are instantiated in isolated contexts. 
+    - The /context/ is created when the /context/ component is constructed by react. 
+    - The /context/ executes the regular react lifecycle methods of the module for store creation. This can be customized to your needs, *redux-saga*, *observables*, *thunks*.
+    - Then a new instance of the module is created and made available to all the children by using react /context/.
 
 *** Automatic model instances:
-    Render a module many times in the same view while keeping one instance of the state for each render by using *instances*.
+    Render a module many times in the same view while keeping one instance of the state for each render by using /instances/.
     
 *** Model singletons:
-    Render a module many times in the same view but target only a singleton state within it's context, ignoring different *instances*.
+    Render a module many times in the same view but target only a singleton state within it's /context/, ignoring different /instances/.
 
 *** Bridge:
-    Instantiate a top level module called `global context` (use the GLOBAL_CONTEXT_ID constant) that can be accesed from any other child context. Useful for keeping the global data in one place.
+    Instantiate a top level module called /global context/ (use the GLOBAL_CONTEXT_ID constant) that can be accessed from any other child /context/. Useful for keeping the global data in one place.
 
 *** Module decorators:
-    Decorate or add functionality to each `model` and build your way up to the module.
+    Decorate or add functionality to each /model/ and build your way up to the module.
 
-    `addReducer`, `addBridge`, `addLifecycle` and `merge` are the decorators that allow you to create a modulethe decorators that allow you to create a module.
+    /addReducer/, /addBridge/, /addLifecycle/ and /merge/ are the included decorators that allow you to create a module.
     
     And most important allows you to rewrite them to customize the framework. 
-    E.g. in `Examples/App/utils` the `addLifecycle` is refactored to include sagas in the creation of the store and one decorator is created to spacify the rootSaga of a module, the `addSaga` decorator.
-
+    E.g. in [[./src/Examples/App/utils.js][Examples/App/utils]] the /addLifecycle/ is refactored to include sagas in the creation of the store and one decorator is created to specify the rootSaga of a module, the /addSaga/ decorator.
 

@@ -10,13 +10,13 @@ ActionCreator: (payload?: Any, props?: Object, error?: Any) -> ActionPayload
 
 1. `payload?: Any`
 
-  Any information that should be comunicated through the action
+  Any information that should be communicated through the action
 
   * Default: `undefined`
 
 2. `props?: Object`
 
-  Aditional info that should be sent in the `ActionPayload`. E.g.: `meta`, `optimist`...
+  Additional info that should be sent in the `ActionPayload`. E.g.: `meta`, `optimist`...
 
   **Note:** `meta.instanceId` is used by `redux-mvc` to specify the target instance of the `action`.
 

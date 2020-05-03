@@ -1,6 +1,6 @@
 # connect(selectors, actions, options)(Component)
 
-Hoc.
+HOC.
 
 Connects the *WrappedComponent* to the *module context*. 
 
