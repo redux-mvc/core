@@ -1,117 +1,62 @@
 
-
-* Intro
-
-** Redux Architecture
-  Redux consists of the following components:
-
-  - Actions for describing user events, like create, search, clear, filter.
-  - Store for keeping the state of the app and reducers.
-  - Reducers for the business logic.
-  - Selectors as an encapsulation of the tree state shape.
-  - React components as the presentational layer.
-  - Sagas for IO/networking (side effects) and coordinating async flows
-
-** Redux-MVC Motivations
-   
-  - Reduce boilerplate by generating action creators and selectors
-  - Create reusable self contained namespaces
-  - Compose namespaces and create modules
-  - Mount and unmount modules and instances anywhere in the tree
-  - Observe namespaces and dispatch actions to the global store
-
-* Code Style
+* redux-mvc
   
-** Folder layout
-   
-   #+BEGIN_EXAMPLE
-   - Module
-     |- SubModule
-        |- index (module)
-        |- model / handlers (optional to create the )
-        |- selectors (reselect)
-        |- sagas
-        |- api
-        |- View (react)
-        |- ...
-   #+END_EXAMPLE
-   
-   - 2 Domain levels max
-   - You can nest under the folder in the module but everything public 
-     should be exported through the index file e.g.: `View/index.js`
-
-
-   #+BEGIN_EXAMPLE
-   - Module
-     |- SubModule
-        |- index.js (module)
-        |- model / handlers (optional to create the )
-        |- selectors (reselect)
-           |- index.js
-           |- byPerson.js
-           |- byGroup.js
-        |- sagas
-        |- api
-        |- View (react)
-           |- index.js
-           |- SearchBar.js
-           |- Filters
-              |- index.js
-              |- CheckBox.js
-              |- MultiSelect.js
-        |- ...
-   #+END_EXAMPLE
-
-** Don't get out of redux architecture
-   
-   - Don't dispatch callbacks, just flux standard actions or thunks (legacy)
-   - Don't use HOC's for state, use redux
-   - We have react hooks, use them only for stupid simple view state, like toggle collapse hover
-   - Try to avoid double dispatching actions
-
-      #+BEGIN_EXAMPLE
-      <div onClick={() => {
-        props.setSearch("")
-        props.setFilters([])
-      }}>
-      #+END_EXAMPLE
-   
-   Instead:
-
-      #+BEGIN_EXAMPLE
-      <div onClick={() => {
-        props.clearSearchAndFilters()
-      }}>
-      #+END_EXAMPLE
-      
-   - Do not write logic when dispatching an action
-
-      #+BEGIN_EXAMPLE
-      <div onClick={() => {
-        const filters = R.map(f => ({ name: f.name }), props.filters)
-        props.setFilters(filters)
-      }}>
-      #+END_EXAMPLE
-
-** Try to use each part of the architecture
-   
-  If you see
-   
-  #+BEGIN_EXAMPLE
-  const handlers = createHandlers({
-    iniState,
-    reducers: {
-      onUndoReview: R.identity,
-      onApprove: R.identity,
-      onDeny: R.identity,
-      onRemove: R.identity,
-      reviewDone: R.identity,
-      fetchManifest: R.identity,
-    },
-    namespace: "ApproversLabel"
-  });
-  #+END_EXAMPLE
+  Alternative react bindings framework for Redux.
+  Modular, composable, reusable. 
   
-  Be suspicious
-  
-  This may mean that the buisiness logic may be in other place than reducers
+** Motivations
+   - Make an analogy with traditional MVC architecture.
+   - Bring back separation of concerns into the game.
+   - Redux is great for separation of concers and reducing complexity, but is not modular and composable by default. Then is very hard to reuse.
+   - Chopp big redux state trees and make atomic modules.
+   - Reduce the boilerplate around creating reducers, actionCreators, selectors, and wiring it all together.
+   - Show the value of using a general but safe framework that enforces certain architecture choises.
+   - Make a modular framework to be able to customize it to your needs.
+   - Modules run when the module context component is constructed, not before like redux. 
+   - Bring back code splitting for redux.
+
+** redux-mvc `new` conceps
+
+*** Model:
+    The state and logic layer (namespace, reducers, getters and actions)
+    
+*** View:
+    The view layer (react connected? components)
+
+*** Controller:
+    Middleware layer that observes the flow of events, models the time and acts acordingly.
+    
+*** Selectors:
+    Similar to reselect its the performance layer, where expensive computations are made immutable. 
+    As usual defines the derived state from the model and it's the glue between the *model* and the *view*. May aswell be part of the model.
+
+*** Module:
+    The `module` is the base unit of the architecture. It groups the model, the view and the controller and can be easily composed to form higher level modules. 
+    E.g.: mixing with the `merge` util from *redux-mvc* a tableModule with a searchBarModule and a filterModule to create a todoListModule.
+
+*** Context or createContext HOC:
+    Similar to the *react-redux* provider with the hability to persist the stores when unmounted and with the following spects:
+    
+    - The created modules are instanciated in isolated contexts. 
+    - The context is created when the context component is constructed by react. 
+    - The context executes the regular react lifecycle methods of the module for store creation. This can be customized to your needs, *redux-saga*, *observables*, *thunks*.
+    - Then a new instance of the module is created and made available to all the childrens by using react context.
+
+*** Automatic model instances:
+    Render a module many times in the same view while keeping one instance of the state for each render by using *instances*.
+    
+*** Model singletons:
+    Render a module many times in the same view but target only a singleton state within it's context, ignoring different *instances*.
+
+*** Bridge:
+    Instantiate a top level module called `global context` (use the GLOBAL_CONTEXT_ID constant) that can be accesed from any other child context. Useful for keeping the global data in one place.
+
+*** Module decorators:
+    Decorate or add functionality to each `model` and build your way up to the module.
+
+    `addReducer`, `addBridge`, `addLifecycle` and `merge` are the decorators that allow you to create a modulethe decorators that allow you to create a module.
+    
+    And most important allows you to rewrite them to customize the framework. 
+    E.g. in `Examples/App/utils` the `addLifecycle` is refactored to include sagas in the creation of the store and one decorator is created to spacify the rootSaga of a module, the `addSaga` decorator.
+
+
