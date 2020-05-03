@@ -12,6 +12,7 @@ export const makeBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
         // eslint-disable-next-line no-unused-vars
         middleware = store => next => action => {
             if (
+                moduleInstance.enableDispatchToGlobal &&
                 !has(["meta", GLOBAL_UPDATE], action) &&
                 moduleInstance.dispatchToGlobal(action)
             ) {
@@ -56,6 +57,8 @@ export const makeBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
 
     middleware.bind = () => {
         if (moduleInstance !== globalInstance) {
+            moduleInstance.enableDispatchToGlobal =
+                typeof moduleInstance.dispatchToGlobal === "function"
             if (
                 moduleInstance.trackGlobalNamespaces &&
                 moduleInstance.trackGlobalNamespaces.length
@@ -73,6 +76,7 @@ export const makeBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
     }
     middleware.unbind = () => {
         if (moduleInstance !== globalInstance) {
+            moduleInstance.enableDispatchToGlobal = false
             // eslint-disable-next-line no-unused-vars
             const { [moduleInstance.namespace]: remove, ...listeners } =
                 globalInstance.listeners || {}

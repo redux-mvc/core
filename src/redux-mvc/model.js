@@ -1,13 +1,13 @@
 import { DEFAULT_INSTANCE_ID } from "./constants"
 
 import {
-    identity,
     prop,
     propOr,
     pathOr,
     mergeAll,
     getSelectorInstanceId,
     capitalizeFirst,
+    identity,
 } from "./utils"
 
 export const createModel = ({
@@ -93,7 +93,7 @@ export const createModel = ({
                 return pathOr(iniState, [namespace, instanceId], state)
             },
             namespace: state => propOr(iniState, namespace, state),
-            module: s => s,
+            module: identity,
         }
     )
     const handlers = mergeAll([setReducers, customReducers]) // reducers

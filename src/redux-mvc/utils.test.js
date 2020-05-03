@@ -37,6 +37,7 @@ describe("## Utils", () => {
     describe("### prop", () => {
         it("Should return the prop if found in the object", () => {
             expect(R.prop("foo", { foo: false })).toBe(false)
+            expect(R.prop("bar", { bar: null })).toBe(null)
         })
         it("Should return undefined if not found in the object or nil", () => {
             expect(R.prop("bar", { foo: "bar" })).toBe(undefined)
@@ -63,7 +64,8 @@ describe("## Utils", () => {
 
     describe("### path", () => {
         it("Should return the prop if found in the object", () => {
-            expect(R.path(["foo", "bar"], { foo: { bar: "bar" } })).toBe("bar")
+            expect(R.path(["foo", "bar"], { foo: { bar: false } })).toBe(false)
+            expect(R.path(["foo", "bar"], { foo: { bar: null } })).toBe(null)
         })
 
         it("Should return undefined if not found in any step of the object", () => {

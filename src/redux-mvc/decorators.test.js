@@ -1,9 +1,15 @@
+import * as R from "ramda"
+
 import counterModel from "Examples/ui-kit/Counter/model"
 import searchBarModel from "Examples/ui-kit/SearchBar/model"
 
-import { addReducer, addBridge, merge } from "./decorators"
+import { addReducer, addBridge, merge, addLifecycle } from "./decorators"
 
-import { GLOBAL_UPDATE, DEFAULT_INSTANCE_ID } from "./constants"
+import {
+    GLOBAL_UPDATE,
+    DEFAULT_INSTANCE_ID,
+    GLOBAL_CONTEXT_ID,
+} from "./constants"
 
 describe("## Redux-MVC decorators", () => {
     describe("### addReducer", () => {
@@ -21,7 +27,7 @@ describe("## Redux-MVC decorators", () => {
             expect(iniState).toBe(module.iniState)
         })
 
-        it("Should execute the right reducer and instance", () => {
+        it("Should execute the right reducer", () => {
             const module = addReducer()(counterModel)
 
             const nextState = module.reducer(
@@ -34,7 +40,7 @@ describe("## Redux-MVC decorators", () => {
             })
         })
 
-        it("Should execute the right reducer", () => {
+        it("Should execute the right reducer and instance", () => {
             const module = addReducer()(counterModel)
 
             const nextState = module.reducer(
@@ -266,6 +272,168 @@ describe("## Redux-MVC decorators", () => {
                     },
                 })
             )
+        })
+    })
+
+    describe("### addLifecycle", () => {
+        it("Should add `constructor` and `componentWillUnmount` to the module", () => {
+            const newModule = R.compose(
+                addLifecycle(),
+                addReducer()
+            )(counterModel)
+
+            expect(newModule).toEqual(
+                expect.objectContaining({
+                    constructor: expect.any(Function),
+                    componentWillUnmount: expect.any(Function),
+                })
+            )
+        })
+
+        it("Should create the store", () => {
+            const newModule = R.compose(
+                addLifecycle(),
+                addReducer()
+            )(counterModel)
+
+            const moduleInstances = {}
+            const contextId = "fakeContextId"
+            const moduleInstance = newModule.constructor({
+                moduleInstances,
+                contextId,
+            })
+
+            expect(moduleInstance.store).toEqual(
+                expect.objectContaining({
+                    getState: expect.any(Function),
+                    subscribe: expect.any(Function),
+                    dispatch: expect.any(Function),
+                })
+            )
+
+            moduleInstance.store.dispatch(newModule.actions.add())
+            expect(
+                newModule.getters.count(moduleInstance.store.getState())
+            ).toEqual(1)
+            moduleInstance.store.dispatch(
+                newModule.actions.add(null, {
+                    meta: { instanceId: "fakeInstance" },
+                })
+            )
+            expect(
+                newModule.getters.count(moduleInstance.store.getState(), {
+                    instanceId: "fakeInstance",
+                })
+            ).toEqual(1)
+        })
+
+        it("Should persist the store by default", () => {
+            const newModule = R.compose(
+                addLifecycle(),
+                addReducer()
+            )(counterModel)
+
+            const moduleInstances = {}
+            const contextId = "fakeContextId"
+            const moduleInstance = newModule.constructor({
+                moduleInstances,
+                contextId,
+            })
+
+            const newModuleInstance = newModule.constructor({
+                moduleInstances,
+                contextId,
+            })
+
+            expect(moduleInstance.store.getState()).toEqual(
+                newModuleInstance.store.getState()
+            )
+        })
+
+        it("Should dispatch to the global instance and track the result", () => {
+            const searchBarModule = R.compose(
+                addLifecycle(),
+                addReducer()
+            )(searchBarModel)
+
+            const moduleInstances = {}
+            const globalInstance = searchBarModule.constructor({
+                moduleInstances,
+                contextId: GLOBAL_CONTEXT_ID,
+            })
+
+            moduleInstances[GLOBAL_CONTEXT_ID] = globalInstance
+
+            const counterModule = R.compose(
+                addLifecycle(),
+                addReducer(),
+                addBridge({
+                    trackGlobalNamespaces: [searchBarModule.namespace],
+                })
+            )(counterModel)
+
+            const contextId = "fakeContextId"
+            const moduleInstance = counterModule.constructor({
+                moduleInstances,
+                contextId,
+            })
+
+            moduleInstance.store.dispatch(
+                searchBarModule.actions.setSearch("hola")
+            )
+            expect(
+                searchBarModule.getters.search(globalInstance.store.getState())
+            ).toEqual("hola")
+            expect(
+                searchBarModule.getters.search(moduleInstance.store.getState())
+            ).toEqual("hola")
+        })
+
+        it("Should unbind the bridge on `componentWillUnmount`", () => {
+            const searchBarModule = R.compose(
+                addLifecycle(),
+                addReducer()
+            )(searchBarModel)
+
+            const moduleInstances = {}
+            const globalInstance = searchBarModule.constructor({
+                moduleInstances,
+                contextId: GLOBAL_CONTEXT_ID,
+            })
+
+            moduleInstances[GLOBAL_CONTEXT_ID] = globalInstance
+
+            const counterModule = R.compose(
+                addLifecycle(),
+                addReducer(),
+                addBridge({
+                    trackGlobalNamespaces: [searchBarModule.namespace],
+                })
+            )(counterModel)
+
+            const contextId = "fakeContextId"
+            const moduleInstance = counterModule.constructor({
+                moduleInstances,
+                contextId,
+            })
+
+            moduleInstances[contextId] = moduleInstance
+
+            moduleInstance.store.dispatch(
+                searchBarModule.actions.setSearch("hola")
+            )
+
+            counterModule.componentWillUnmount({ moduleInstances, contextId })
+
+            moduleInstance.store.dispatch(
+                searchBarModule.actions.setSearch("chau")
+            )
+            expect(
+                searchBarModule.getters.search(globalInstance.store.getState())
+            ).toEqual("hola")
+            expect(
+                searchBarModule.getters.search(moduleInstance.store.getState())
+            ).toEqual("hola")
         })
     })
 })

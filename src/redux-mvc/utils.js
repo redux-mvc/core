@@ -10,7 +10,13 @@ export const propOr = (or, prop, val) => {
     }
     return or
 }
-export const prop = (...args) => propOr(undefined, ...args)
+
+export const prop = (prop, val) => {
+    if (val) {
+        return val[prop]
+    }
+    return undefined
+}
 
 export const pathOr = (or, path, val) => {
     const result = path.reduce((acc, key) => prop(key, acc), val)
@@ -18,7 +24,8 @@ export const pathOr = (or, path, val) => {
     return typeof result !== "undefined" && result !== null ? result : or
 }
 
-export const path = (...args) => pathOr(undefined, ...args)
+export const path = (path, val) =>
+    path.reduce((acc, key) => prop(key, acc), val)
 
 const EMPTY = Symbol("empty")
 export const has = (...args) => pathOr(EMPTY, ...args) !== EMPTY
