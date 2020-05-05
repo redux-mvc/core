@@ -72,7 +72,11 @@ export const addReducer = () => module => ({
 const defaultCompose = () => compose
 
 const composeEnhancers =
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || defaultCompose // eslint-disable-line no-underscore-dangle
+    (process.env.NODE_ENV !== "production" &&
+        window &&
+        // eslint-disable-next-line no-underscore-dangle
+        window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
+    defaultCompose
 
 export const addLifecycle = (options = {}) => module => ({
     ...module,
