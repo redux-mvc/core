@@ -19,16 +19,17 @@ export const connect = (selectors, actions, options = {}) => Component => {
 
         const dom = <WrappedComponent {...props} {...modelProps} />
 
-        if (props.instanceId && props.instanceId !== context.instanceId) {
-            return (
-                <StoreManager.Provider
-                    value={{ ...context, instanceId: props.instanceId }}
-                >
-                    {dom}
-                </StoreManager.Provider>
-            )
-        }
-        return dom
+        return (
+            <StoreManager.Provider
+                value={{
+                    ...context,
+                    instanceId: props.instanceId,
+                    renderLevel: context.renderLevel + 1,
+                }}
+            >
+                {dom}
+            </StoreManager.Provider>
+        )
     })
 
     let Connect = ConnectComponent

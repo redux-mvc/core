@@ -8,6 +8,7 @@ import {
     uniq,
     applyBridgeMiddleware,
     pick,
+    ensureAncestorRender,
 } from "./utils"
 
 import {
@@ -120,25 +121,27 @@ export const addLifecycle = (options = {}) => module => ({
                 ])
             }
             //create store
-            moduleInstance.store = createStore(
-                module.reducer,
-                iniState,
-                composeEnhancers({
-                    name: module.namespace,
-                    serialize: {
-                        replacer: (key, value) => {
-                            if (
-                                value &&
-                                value.dispatchConfig &&
-                                value._targetInst // eslint-disable-line
-                            ) {
-                                return "[EVENT]"
-                            }
-                            return value
+            moduleInstance.store = ensureAncestorRender(
+                createStore(
+                    module.reducer,
+                    iniState,
+                    composeEnhancers({
+                        name: module.namespace,
+                        serialize: {
+                            replacer: (key, value) => {
+                                if (
+                                    value &&
+                                    value.dispatchConfig &&
+                                    value._targetInst // eslint-disable-line
+                                ) {
+                                    return "[EVENT]"
+                                }
+                                return value
+                            },
                         },
-                    },
-                    ...options,
-                })(applyMiddleware(...moduleInstance.middleware))
+                        ...options,
+                    })(applyMiddleware(...moduleInstance.middleware))
+                )
             )
         }
 
@@ -156,6 +159,7 @@ export const addLifecycle = (options = {}) => module => ({
         if (moduleInstance.bridgeMiddleware) {
             moduleInstance.bridgeMiddleware.unbind()
         }
+        moduleInstance.store.unsubscribe()
         return moduleInstance
     },
 })

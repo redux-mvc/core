@@ -2,7 +2,7 @@ import * as R from "ramda"
 
 import { createStore, applyMiddleware } from "redux"
 import { addReducer } from "redux-mvc/decorators"
-import { applyBridgeMiddleware } from "redux-mvc/utils"
+import { applyBridgeMiddleware, ensureAncestorRender } from "redux-mvc/utils"
 import { GLOBAL_CONTEXT_ID } from "redux-mvc/constants"
 import { makeBridgeMiddleware } from "redux-mvc/middleware"
 
@@ -89,25 +89,27 @@ export const addLifecycle = (options = {}) => module => ({
                 ])
             }
             //create store
-            moduleInstance.store = createStore(
-                module.reducer,
-                iniState,
-                composeEnhancers({
-                    name: module.namespace,
-                    serialize: {
-                        replacer: (key, value) => {
-                            if (
-                                value &&
-                                value.dispatchConfig &&
-                                value._targetInst // eslint-disable-line
-                            ) {
-                                return "[EVENT]"
-                            }
-                            return value
+            moduleInstance.store = ensureAncestorRender(
+                createStore(
+                    module.reducer,
+                    iniState,
+                    composeEnhancers({
+                        name: module.namespace,
+                        serialize: {
+                            replacer: (key, value) => {
+                                if (
+                                    value &&
+                                    value.dispatchConfig &&
+                                    value._targetInst // eslint-disable-line
+                                ) {
+                                    return "[EVENT]"
+                                }
+                                return value
+                            },
                         },
-                    },
-                    ...options,
-                })(applyMiddleware(...moduleInstance.middleware))
+                        ...options,
+                    })(applyMiddleware(...moduleInstance.middleware))
+                )
             )
         }
 
@@ -134,6 +136,7 @@ export const addLifecycle = (options = {}) => module => ({
         if (moduleInstance.sagaTasks) {
             moduleInstance.sagaTasks.forEach(task => task.cancel())
         }
+        moduleInstance.store.unsubscribe()
         return moduleInstance
     },
 })

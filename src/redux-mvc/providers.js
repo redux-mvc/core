@@ -64,6 +64,7 @@ export const createContext = ({
                         ...this.context,
                         contextId,
                         instanceId,
+                        renderLevel: 0,
                     }}
                 >
                     <WrappedComponent {...this.props} instanceId={instanceId} />

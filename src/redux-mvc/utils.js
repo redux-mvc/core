@@ -108,3 +108,41 @@ export const applyBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
     }
     return false
 }
+
+export const ensureAncestorRender = store => {
+    const listeners = {}
+
+    const subscribe = (listener, renderLevel = "last") => {
+        const id = Symbol("listener")
+        listeners[renderLevel] = { ...listeners[renderLevel], [id]: listener }
+
+        return () => {
+            // eslint-disable-next-line no-unused-vars
+            const { [id]: remove, ...rest } = listeners[renderLevel] || {}
+            listeners[renderLevel] = rest
+        }
+    }
+
+    const execute = () => {
+        const lastListeners = listeners.last
+        const len = Object.keys(listeners).length - (lastListeners ? 1 : 0)
+        for (let i = 0; i < len; i++) {
+            const levelListeners = listeners[i.toString()]
+            Object.getOwnPropertySymbols(levelListeners).forEach(sym =>
+                levelListeners[sym]()
+            )
+        }
+
+        Object.getOwnPropertySymbols(listeners.last || {}).forEach(sym =>
+            listeners.last[sym]()
+        )
+    }
+
+    const unsubscribe = store.subscribe(execute)
+
+    return {
+        ...store,
+        subscribe,
+        unsubscribe,
+    }
+}

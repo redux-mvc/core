@@ -55,7 +55,7 @@ export const useModel = (selectors, actions, props) => {
                     oldStateProps = newStateProps
                     setStateProps(newStateProps)
                 }
-            })
+            }, context.renderLevel)
         }
         return noop
     }, [store, props, selectors, instanceId])

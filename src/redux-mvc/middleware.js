@@ -1,4 +1,4 @@
-import { pick, diff, has } from "./utils"
+import { pick, diff, has, noop } from "./utils"
 import { GLOBAL_UPDATE } from "./constants"
 
 const globalUpdate = (action, state) => ({
@@ -7,7 +7,7 @@ const globalUpdate = (action, state) => ({
 })
 
 export const makeBridgeMiddleware = ({ moduleInstance, globalInstance }) => {
-    let middleware = {}
+    let middleware = noop
     if (moduleInstance !== globalInstance) {
         // eslint-disable-next-line no-unused-vars
         middleware = store => next => action => {
