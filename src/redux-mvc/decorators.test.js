@@ -235,18 +235,10 @@ describe("## Redux-MVC decorators", () => {
             expect(module).toEqual(
                 expect.objectContaining({
                     ...right,
-                    iniState: {
-                        ...left.iniState,
-                        ...right.iniState,
-                    },
                     dependencies: {
                         ...left.dependencies,
                         ...right.dependencies,
                         [left.namespace]: left,
-                    },
-                    reducers: {
-                        ...left.reducers,
-                        ...right.reducers,
                     },
                 })
             )
@@ -259,16 +251,8 @@ describe("## Redux-MVC decorators", () => {
             expect(module).toEqual(
                 expect.objectContaining({
                     ...counterModel,
-                    iniState: {
-                        ...searchBarModel.iniState,
-                        ...counterModel.iniState,
-                    },
                     dependencies: {
                         [searchBarModel.namespace]: searchBarModel,
-                    },
-                    reducers: {
-                        ...searchBarModel.reducers,
-                        ...counterModel.reducers,
                     },
                 })
             )

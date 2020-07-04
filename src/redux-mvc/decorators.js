@@ -19,56 +19,71 @@ import {
 
 import { makeBridgeMiddleware } from "./middleware"
 
-export const addReducer = () => module => ({
-    ...module,
-    reducer(state, action) {
-        if (state === undefined) {
-            return module.iniState
-        }
-        const globalUpdate = path(["meta", GLOBAL_UPDATE], action)
-        if (globalUpdate) {
-            return mergeAll([state, globalUpdate])
-        }
-        const selectedReducer = module.reducers[action.type]
-        if (typeof selectedReducer !== "function") {
-            return state
-        }
+export const addReducer = () => module => {
+    const dependencies = Object.values(module.dependencies || {})
+    const iniState = mergeAll([
+        module.iniState,
+        ...dependencies.map(dep => dep.iniState || {}),
+    ])
 
-        const instanceId = getActionInstanceId(
-            action,
-            pathOr(
-                // if the action is not in dependencies then must be an action from the root module
-                module.singleton,
-                [action.namespace, "singleton"],
-                module.dependencies
+    const reducers = mergeAll([
+        module.reducers,
+        ...dependencies.map(dep => dep.reducers || {}),
+    ])
+
+    return {
+        ...module,
+        iniState,
+        reducers,
+        reducer(state, action) {
+            if (state === undefined) {
+                return iniState
+            }
+            const globalUpdate = path(["meta", GLOBAL_UPDATE], action)
+            if (globalUpdate) {
+                return mergeAll([state, globalUpdate])
+            }
+            const selectedReducer = reducers[action.type]
+            if (typeof selectedReducer !== "function") {
+                return state
+            }
+
+            const instanceId = getActionInstanceId(
+                action,
+                pathOr(
+                    // if the action is not in dependencies then must be an action from the root module
+                    module.singleton,
+                    [action.namespace, "singleton"],
+                    module.dependencies
+                )
             )
-        )
 
-        const namespace = action.namespace
-        const p = [namespace, instanceId]
-        const oldState = pathOr(
-            path([namespace, DEFAULT_INSTANCE_ID], module.iniState),
-            p,
-            state
-        )
-        const newState = selectedReducer(oldState, action)
+            const namespace = action.namespace
+            const p = [namespace, instanceId]
+            const oldState = pathOr(
+                path([namespace, DEFAULT_INSTANCE_ID], iniState),
+                p,
+                state
+            )
+            const newState = selectedReducer(oldState, action)
 
-        if (newState !== oldState) {
-            return mergeAll([
-                state,
-                {
-                    [namespace]: mergeAll([
-                        state[namespace],
-                        {
-                            [instanceId]: mergeAll([oldState, newState]),
-                        },
-                    ]),
-                },
-            ])
-        }
-        return state
-    },
-})
+            if (newState !== oldState) {
+                return mergeAll([
+                    state,
+                    {
+                        [namespace]: mergeAll([
+                            state[namespace],
+                            {
+                                [instanceId]: mergeAll([oldState, newState]),
+                            },
+                        ]),
+                    },
+                ])
+            }
+            return state
+        },
+    }
+}
 
 const defaultCompose = () => compose
 
@@ -179,8 +194,6 @@ export const merge = left => right => {
     return {
         ...right,
         dependencies,
-        iniState: { ...left.iniState, ...right.iniState },
-        reducers: { ...left.reducers, ...right.reducers },
     }
 }
 
