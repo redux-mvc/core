@@ -79,15 +79,17 @@ const composeEnhancers =
         window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
     defaultCompose
 
+const created = Symbol("created")
+
 export const addLifecycle = (options = {}) => module => ({
     ...module,
     constructor({ persist = true, moduleInstances, contextId }) {
         let moduleInstance = moduleInstances[contextId]
 
-        if (!moduleInstance || !persist) {
-            moduleInstance = { ...module }
+        if (!moduleInstance[created] || !persist) {
+            moduleInstance[created] = true
 
-            moduleInstance.middleware = Object.values(module.middleware || {})
+            let middleware = Object.values(moduleInstance.middleware || {})
             const globalInstance =
                 contextId === GLOBAL_CONTEXT_ID
                     ? moduleInstance
@@ -104,18 +106,18 @@ export const addLifecycle = (options = {}) => module => ({
                     moduleInstance,
                     globalInstance,
                 })
-                moduleInstance.middleware.push(moduleInstance.bridgeMiddleware)
+                middleware.push(moduleInstance.bridgeMiddleware)
             }
 
-            let iniState = module.iniState
+            let iniState = moduleInstance.iniState
             if (
                 contextId !== GLOBAL_CONTEXT_ID &&
                 prop("store", globalInstance)
             ) {
                 iniState = mergeAll([
-                    module.iniState,
+                    moduleInstance.iniState,
                     pick(
-                        module.trackGlobalNamespaces || [],
+                        moduleInstance.trackGlobalNamespaces || [],
                         globalInstance.store.getState()
                     ),
                 ])
@@ -123,10 +125,10 @@ export const addLifecycle = (options = {}) => module => ({
             //create store
             moduleInstance.store = ensureAncestorRender(
                 createStore(
-                    module.reducer,
+                    moduleInstance.reducer,
                     iniState,
                     composeEnhancers({
-                        name: module.namespace,
+                        name: moduleInstance.namespace,
                         serialize: {
                             replacer: (key, value) => {
                                 if (
@@ -140,7 +142,10 @@ export const addLifecycle = (options = {}) => module => ({
                             },
                         },
                         ...options,
-                    })(applyMiddleware(...moduleInstance.middleware))
+                    })(
+                        applyMiddleware(...middleware),
+                        ...(moduleInstance.enhancers || [])
+                    )
                 )
             )
         }

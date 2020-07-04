@@ -17,6 +17,9 @@ export const createContext = ({
         constructor(props, context) {
             super(props, context)
 
+            context.moduleInstances[contextId] = context.moduleInstances[
+                contextId
+            ] || { ...module }
             this.callLifeCycle("constructor")
         }
 

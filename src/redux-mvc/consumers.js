@@ -23,7 +23,7 @@ export const connect = (selectors, actions, options = {}) => Component => {
             <StoreManager.Provider
                 value={{
                     ...context,
-                    instanceId: props.instanceId,
+                    instanceId: modelProps.instanceId,
                     renderLevel: context.renderLevel + 1,
                 }}
             >

@@ -296,8 +296,8 @@ describe("## Redux-MVC decorators", () => {
                 addReducer()
             )(counterModel)
 
-            const moduleInstances = {}
             const contextId = "fakeContextId"
+            const moduleInstances = { [contextId]: { ...newModule } }
             const moduleInstance = newModule.constructor({
                 moduleInstances,
                 contextId,
@@ -333,8 +333,8 @@ describe("## Redux-MVC decorators", () => {
                 addReducer()
             )(counterModel)
 
-            const moduleInstances = {}
             const contextId = "fakeContextId"
+            const moduleInstances = { [contextId]: { ...newModule } }
             const moduleInstance = newModule.constructor({
                 moduleInstances,
                 contextId,
@@ -356,14 +356,6 @@ describe("## Redux-MVC decorators", () => {
                 addReducer()
             )(searchBarModel)
 
-            const moduleInstances = {}
-            const globalInstance = searchBarModule.constructor({
-                moduleInstances,
-                contextId: GLOBAL_CONTEXT_ID,
-            })
-
-            moduleInstances[GLOBAL_CONTEXT_ID] = globalInstance
-
             const counterModule = R.compose(
                 addLifecycle(),
                 addReducer(),
@@ -373,6 +365,17 @@ describe("## Redux-MVC decorators", () => {
             )(counterModel)
 
             const contextId = "fakeContextId"
+            const moduleInstances = {
+                [contextId]: { ...counterModule },
+                [GLOBAL_CONTEXT_ID]: { ...searchBarModule },
+            }
+            const globalInstance = searchBarModule.constructor({
+                moduleInstances,
+                contextId: GLOBAL_CONTEXT_ID,
+            })
+
+            moduleInstances[GLOBAL_CONTEXT_ID] = globalInstance
+
             const moduleInstance = counterModule.constructor({
                 moduleInstances,
                 contextId,
@@ -395,14 +398,6 @@ describe("## Redux-MVC decorators", () => {
                 addReducer()
             )(searchBarModel)
 
-            const moduleInstances = {}
-            const globalInstance = searchBarModule.constructor({
-                moduleInstances,
-                contextId: GLOBAL_CONTEXT_ID,
-            })
-
-            moduleInstances[GLOBAL_CONTEXT_ID] = globalInstance
-
             const counterModule = R.compose(
                 addLifecycle(),
                 addReducer(),
@@ -412,6 +407,17 @@ describe("## Redux-MVC decorators", () => {
             )(counterModel)
 
             const contextId = "fakeContextId"
+            const moduleInstances = {
+                [contextId]: { ...counterModule },
+                [GLOBAL_CONTEXT_ID]: { ...searchBarModule },
+            }
+            const globalInstance = searchBarModule.constructor({
+                moduleInstances,
+                contextId: GLOBAL_CONTEXT_ID,
+            })
+
+            moduleInstances[GLOBAL_CONTEXT_ID] = globalInstance
+
             const moduleInstance = counterModule.constructor({
                 moduleInstances,
                 contextId,
