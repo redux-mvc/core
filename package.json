@@ -1,12 +1,11 @@
 {
-    "name": "redux-mvc",
+    "name": "@redux-mvc/core",
     "version": "1.0.0",
-    "description": "",
+    "description": "MVC Framework (react and redux)",
     "main": "dist/lib/index.js",
     "module": "dist/es/index.js",
-    "author": "Gonzalo Rafael Acosta",
+    "author": "Gonzalo Rafael Acosta (https://github.com/gacosta89)",
     "license": "MIT",
-    "private": true,
     "scripts": {
         "dev": "webpack-dev-server --open --config ./webpack.dev.js --hot",
         "lint": "eslint ./src/redux-mvc",
@@ -18,6 +17,9 @@
         "hooks:pre-commit": "./bin/lint-staged.sh && yarn test",
         "clean": "rm -rf dist"
     },
+    "files": [
+        "dist"
+    ],
     "peerDependencies": {
         "react": "^16.8.3",
         "redux": "^2.0.0 || ^3.0.0 || ^4.0.0-0"
@@ -68,5 +70,19 @@
         "hooks": {
             "pre-commit": "npm run hooks:pre-commit"
         }
-    }
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/redux-mvc/core"
+    },
+    "keywords": [
+        "redux",
+        "mvc",
+        "react",
+        "framework"
+    ],
+    "bugs": {
+        "url": "https://github.com/redux-mvc/core/issues"
+    },
+    "homepage": "https://github.com/redux-mvc/core"
 }
