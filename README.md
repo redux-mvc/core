@@ -7,7 +7,7 @@
   
   [Docs](https://redux-mvc.github.io/docs)
 
-  [TodoMVC example](https://redux-mvc.github.io/core)
+  [Examples](https://redux-mvc.github.io/docs/examples)
   
 ## Installation
 
@@ -21,7 +21,7 @@
 
    - Make an analogy with traditional MVC architecture.
    - Bring back separation of concerns.
-   - Redux is great for separation of concerns and reducing complexity, but is not modular and composable by default. Then is very hard to reuse.
+   - redux is great for separation of concerns and reducing complexity, but is not modular and composable by default. Then is very hard to reuse.
    - Chop big redux state trees and make atomic modules.
    - Reduce the boilerplate around creating reducers, actionCreators, selectors, and wiring it all together.
    - Show the value of using a general but safe framework that enforces certain architecture choices.
