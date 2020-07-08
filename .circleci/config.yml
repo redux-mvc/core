@@ -74,10 +74,8 @@ jobs:
           name: Build Docs
           command: yarn build:dev
       - persist_to_workspace:
-          root: docs/
+          root: dist/
           paths: examples
-      - store_artifacts:
-          path: docs
 
   examples-deploy:
     docker:
@@ -87,7 +85,7 @@ jobs:
       # Download and cache dependencies
       - add_ssh_keys:
           fingerprints:
-            - "d8:92:3b:19:04:03:a9:29:cb:bc:72:c6:d7:2e:0b:cc"
+            - "3f:14:23:67:fd:40:0a:6f:1b:47:17:ba:b8:e8:ff:e5"
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "yarn.lock" }}
@@ -95,7 +93,7 @@ jobs:
             - v1-dependencies-
       - run: yarn install --pure-lockfile
       - attach_workspace:
-          at: docs/
+          at: dist/
       - run:
           name: Install and configure dependencies
           command: |
@@ -103,7 +101,7 @@ jobs:
             git config user.name "ci-build"
       - run:
           name: Deploy docs to gh-pages branch
-          command: gh-pages -d docs/examples --message "[Storybook] Deploy [skip ci]" 
+          command: gh-pages -d dist/examples --message "[Storybook] Deploy [skip ci]" 
 
 workflows:
   version: 2
