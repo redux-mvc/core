@@ -9,11 +9,12 @@
     "scripts": {
         "dev": "webpack-dev-server --open --config ./webpack.dev.js --hot",
         "lint": "eslint ./src/redux-mvc",
+        "build": "yarn build:commonjs && yarn build:es",
         "build:dev": "webpack --config ./webpack.dev.js",
         "build:commonjs": "BABEL_ENV=commonjs babel src/redux-mvc --out-dir dist/lib",
         "build:es": "babel src/redux-mvc --out-dir dist/es",
         "test": "jest",
-        "all": "yarn --install --pure-lockfile && yarn lint && yarn test --coverage && yarn clean && yarn build:commonjs && yarn build:es",
+        "all": "yarn --install --pure-lockfile && yarn lint && yarn test --coverage && yarn clean && yarn build",
         "hooks:pre-commit": "./bin/lint-staged.sh && yarn test",
         "clean": "rm -rf dist"
     },
@@ -76,13 +77,13 @@
         "url": "https://github.com/redux-mvc/core"
     },
     "keywords": [
+        "react",
         "redux",
         "mvc",
-        "react",
-        "framework"
+        "mvc-framework"
     ],
     "bugs": {
         "url": "https://github.com/redux-mvc/core/issues"
     },
-    "homepage": "https://github.com/redux-mvc/core"
+    "homepage": "https://redux-mvc.github.io/docs/"
 }

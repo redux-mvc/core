@@ -3,9 +3,10 @@ const path = require("path")
 
 module.exports = {
     entry: ["./src/index"],
+    mode: "development",
     target: "web",
     output: {
-        path: path.join(__dirname, "dist", "main"),
+        path: path.join(__dirname, "dist", "examples"),
         filename: "index.js",
     },
     resolve: {
@@ -18,7 +19,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title: process.env.TITLE,
+            title: "redux-mvc",
         }),
     ],
     module: {
