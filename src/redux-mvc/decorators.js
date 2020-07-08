@@ -164,6 +164,7 @@ export const addLifecycle = (options = {}) => module => ({
                 )
             )
         }
+        moduleInstance.store.subscribeExecute()
 
         if (moduleInstance.bridgeMiddleware) {
             moduleInstance.bridgeMiddleware.bind()
@@ -179,7 +180,7 @@ export const addLifecycle = (options = {}) => module => ({
         if (moduleInstance.bridgeMiddleware) {
             moduleInstance.bridgeMiddleware.unbind()
         }
-        moduleInstance.store.unsubscribe()
+        moduleInstance.store.unsubscribeExecute()
         return moduleInstance
     },
 })

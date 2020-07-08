@@ -49,9 +49,8 @@ export const enhanceLifecycle = () => module => ({
                     sagaMiddleware: createSagaMiddleware(),
                 }
             }
-
-            moduleInstance = module.constructor(props)
         }
+        moduleInstance = module.constructor(props)
 
         //run middleware
         if (moduleInstance.sagas.length) {

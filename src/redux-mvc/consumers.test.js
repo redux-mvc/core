@@ -276,10 +276,10 @@ describe("## Redux-MVC connect", () => {
         const wrapper = mount(<App text="hola" />)
 
         expect(wrapper.find("#div").text()).toBe("hola")
-        expect(fixedCount.mock.calls.length).toBe(2)
+        expect(fixedCount.mock.calls.length).toBe(1)
 
         wrapper.setProps({ text: "chau" })
         expect(wrapper.find("#div").text()).toBe("chau")
-        expect(fixedCount.mock.calls.length).toBe(4)
+        expect(fixedCount.mock.calls.length).toBe(2)
     })
 })

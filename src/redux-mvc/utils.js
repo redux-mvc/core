@@ -137,12 +137,21 @@ export const ensureAncestorRender = store => {
             listeners.last[sym]()
         )
     }
+    let subscription = noop
 
-    const unsubscribe = store.subscribe(execute)
+    const unsubscribeExecute = () => {
+        subscription()
+        subscription = noop
+    }
+
+    const subscribeExecute = () => {
+        subscription = store.subscribe(execute)
+    }
 
     return {
         ...store,
         subscribe,
-        unsubscribe,
+        subscribeExecute,
+        unsubscribeExecute,
     }
 }
