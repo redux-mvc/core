@@ -101,7 +101,7 @@ jobs:
             git config user.name "ci-build"
       - run:
           name: Deploy docs to gh-pages branch
-          command: gh-pages -d dist/examples --message "[Storybook] Deploy [skip ci]" 
+          command: yarn gh-pages -d dist/examples --message "[Storybook] Deploy [skip ci]" 
 
 workflows:
   version: 2

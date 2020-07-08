@@ -10,8 +10,8 @@
   [Examples](https://redux-mvc.github.io/docs/examples)
   
 [![build status](https://circleci.com/gh/redux-mvc/core/tree/master.svg?style=shield)](https://app.circleci.com/pipelines/github/redux-mvc/core?branch=master)
-[![npm version](https://img.shields.io/npm/v/@redux-mvc/core.svg?style=flat-square)](https://www.npmjs.com/package/redux)
-[![npm downloads](https://img.shields.io/npm/dm/@redux-mvc/core.svg?style=flat-square)](https://www.npmjs.com/package/redux)
+[![npm version](https://img.shields.io/npm/v/@redux-mvc/core.svg?style=flat-square)](https://www.npmjs.com/package/@redux-mvc/core)
+[![npm downloads](https://img.shields.io/npm/dm/@redux-mvc/core.svg?style=flat-square)](https://www.npmjs.com/package/@redux-mvc/core)
   
 ## Installation
 
