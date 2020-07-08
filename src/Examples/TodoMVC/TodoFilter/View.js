@@ -32,7 +32,6 @@ const TodoFilter = ({
     activeFilter = FILTERS.ALL,
     clearCompleted = noop,
 }) => {
-    console.log("rendered", activeFilter)
     return (
         <footer className="footer">
             <span className="todo-count">

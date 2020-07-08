@@ -23,12 +23,8 @@ export const getShowClearCompleted = createSelector(
 export const getActiveFilter = createSelector(
     AppGetters.href,
     // eslint-disable-next-line no-underscore-dangle
-    href => {
-        console.log("selector", href)
-
-        return R.propOr(FILTERS.ALL, href, {
-            "/todo-mvc/active": FILTERS.PENDING,
-            "/todo-mvc/completed": FILTERS.COMPLETED,
-        })
-    }
+    R.propOr(FILTERS.ALL, R.__, {
+        "/todo-mvc/active": FILTERS.PENDING,
+        "/todo-mvc/completed": FILTERS.COMPLETED,
+    })
 )

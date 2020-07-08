@@ -8,7 +8,7 @@
     "license": "MIT",
     "scripts": {
         "dev": "webpack-dev-server --open --config ./webpack.dev.js --hot",
-        "lint": "eslint ./src/redux-mvc",
+        "lint": "eslint ./src",
         "build": "yarn build:commonjs && yarn build:es",
         "build:dev": "webpack --config ./webpack.dev.js",
         "build:commonjs": "BABEL_ENV=commonjs babel src/redux-mvc --out-dir dist/lib",

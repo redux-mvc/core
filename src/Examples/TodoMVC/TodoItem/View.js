@@ -35,39 +35,41 @@ const TodoItem = ({
     remove = noop,
     commit = noop,
     cancel = noop,
-}) => (
-    <li
-        className={cx({
-            completed: todo.completed,
-            editing: todo.editing,
-        })}
-    >
-        <div className="view">
+}) => {
+    return (
+        <li
+            className={cx({
+                completed: todo.completed,
+                editing: todo.editing,
+            })}
+        >
+            <div className="view">
+                <input
+                    className="toggle"
+                    type="checkbox"
+                    checked={todo.completed}
+                    onChange={toggle}
+                />
+                <label onDoubleClick={() => enableEditing(todo.text)}>
+                    {todo.text}
+                </label>
+                <button className="destroy" onClick={() => remove(todo.id)} />
+            </div>
             <input
-                className="toggle"
-                type="checkbox"
-                checked={todo.completed}
-                onChange={toggle}
+                className="edit"
+                value={editingValue}
+                onChange={event => edit(event.target.value)}
+                onBlur={commit}
+                onKeyDown={event => {
+                    if (event.which === ESCAPE_KEY) {
+                        cancel()
+                    } else if (event.which === ENTER_KEY) {
+                        commit()
+                    }
+                }}
             />
-            <label onDoubleClick={() => enableEditing(todo.text)}>
-                {todo.text}
-            </label>
-            <button className="destroy" onClick={() => remove(todo.id)} />
-        </div>
-        <input
-            className="edit"
-            value={editingValue}
-            onChange={event => edit(event.target.value)}
-            onBlur={commit}
-            onKeyDown={event => {
-                if (event.which === ESCAPE_KEY) {
-                    cancel()
-                } else if (event.which === ENTER_KEY) {
-                    commit()
-                }
-            }}
-        />
-    </li>
-)
+        </li>
+    )
+}
 
 export default decorate(TodoItem)

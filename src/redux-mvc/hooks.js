@@ -1,7 +1,7 @@
-import { useContext, useMemo, useState, useEffect } from "react"
+import { useContext, useMemo, useState, useEffect, useRef } from "react"
 import { StoreManager } from "./context"
 
-import { path, propOr, noop, diff } from "./utils"
+import { path, propOr, diff } from "./utils"
 
 const getStateProps = ({ selectors, instanceId, cache, state, props }) =>
     Object.entries(selectors || {}).reduce((acc, [key, f]) => {
@@ -19,7 +19,7 @@ const getStateProps = ({ selectors, instanceId, cache, state, props }) =>
         }
     }, {})
 
-export const useModel = (selectors, actions, props) => {
+export const useModel = (selectors, actions, { children, ...props } = {}) => {
     const context = useContext(StoreManager)
     const instanceId = propOr(context.instanceId, "instanceId", props)
     const store = path(["moduleInstances", context.contextId, "store"], context)
@@ -29,6 +29,8 @@ export const useModel = (selectors, actions, props) => {
         )
     }
     const [cache] = useState({})
+    const stateRef = useRef()
+    stateRef.current = { props, instanceId }
     const [stateProps, setStateProps] = useState(
         getStateProps({
             selectors,
@@ -40,25 +42,34 @@ export const useModel = (selectors, actions, props) => {
     )
 
     useEffect(() => {
-        if (store) {
-            let oldStateProps = stateProps
-            return store.subscribe(() => {
-                const newStateProps = getStateProps({
-                    selectors,
-                    instanceId,
-                    cache,
-                    state: store.getState(),
-                    props,
-                })
+        return store.subscribe(() => {
+            const newStateProps = getStateProps({
+                selectors,
+                instanceId: stateRef.current.instanceId,
+                cache,
+                state: store.getState(),
+                props: stateRef.current.props,
+            })
 
-                if (diff(oldStateProps, newStateProps)) {
-                    oldStateProps = newStateProps
-                    setStateProps(newStateProps)
-                }
-            }, context.renderLevel)
+            if (diff(stateProps, newStateProps)) {
+                setStateProps(newStateProps)
+            }
+        }, context.renderLevel)
+    }, [store])
+
+    useEffect(() => {
+        const newStateProps = getStateProps({
+            selectors,
+            instanceId,
+            cache,
+            state: store.getState(),
+            props: props,
+        })
+
+        if (diff(stateProps, newStateProps)) {
+            setStateProps(newStateProps)
         }
-        return noop
-    }, [store, props, instanceId])
+    }, [props, instanceId])
 
     const actionProps = useMemo(
         () =>
@@ -86,9 +97,5 @@ export const useModel = (selectors, actions, props) => {
         [instanceId]
     )
 
-    return useMemo(() => ({ ...stateProps, ...actionProps, instanceId }), [
-        stateProps,
-        actionProps,
-        instanceId,
-    ])
+    return { ...stateProps, ...actionProps, instanceId }
 }
