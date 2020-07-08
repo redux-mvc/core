@@ -31,48 +31,53 @@ const TodoFilter = ({
     showClearCompleted = false,
     activeFilter = FILTERS.ALL,
     clearCompleted = noop,
-}) => (
-    <footer className="footer">
-        <span className="todo-count">
-            <strong>{todoCount}</strong>
-            {todoCount === 1 ? " item " : " items "}left
-        </span>
-        <ul className="filters">
-            <li>
-                <Link
-                    href="/todo-mvc#/"
-                    className={cx({ selected: activeFilter === FILTERS.ALL })}
-                >
-                    All
-                </Link>
-            </li>{" "}
-            <li>
-                <Link
-                    href="/todo-mvc#/active"
-                    className={cx({
-                        selected: activeFilter === FILTERS.PENDING,
-                    })}
-                >
-                    Active
-                </Link>
-            </li>{" "}
-            <li>
-                <Link
-                    href="/todo-mvc#/completed"
-                    className={cx({
-                        selected: activeFilter === FILTERS.COMPLETED,
-                    })}
-                >
-                    Completed
-                </Link>
-            </li>
-        </ul>
-        {showClearCompleted > 0 && (
-            <button className="clear-completed" onClick={clearCompleted}>
-                Clear completed
-            </button>
-        )}
-    </footer>
-)
+}) => {
+    console.log("rendered", activeFilter)
+    return (
+        <footer className="footer">
+            <span className="todo-count">
+                <strong>{todoCount}</strong>
+                {todoCount === 1 ? " item " : " items "}left
+            </span>
+            <ul className="filters">
+                <li>
+                    <Link
+                        href="/todo-mvc/"
+                        className={cx({
+                            selected: activeFilter === FILTERS.ALL,
+                        })}
+                    >
+                        All
+                    </Link>
+                </li>{" "}
+                <li>
+                    <Link
+                        href="/todo-mvc/active"
+                        className={cx({
+                            selected: activeFilter === FILTERS.PENDING,
+                        })}
+                    >
+                        Active
+                    </Link>
+                </li>{" "}
+                <li>
+                    <Link
+                        href="/todo-mvc/completed"
+                        className={cx({
+                            selected: activeFilter === FILTERS.COMPLETED,
+                        })}
+                    >
+                        Completed
+                    </Link>
+                </li>
+            </ul>
+            {showClearCompleted > 0 && (
+                <button className="clear-completed" onClick={clearCompleted}>
+                    Clear completed
+                </button>
+            )}
+        </footer>
+    )
+}
 
 export default decorate(TodoFilter)

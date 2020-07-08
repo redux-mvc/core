@@ -1,4 +1,4 @@
-import { createModule } from "./utils"
+import { createModule } from "App/utils"
 
 import model from "./model"
 import rootSaga from "./sagas"

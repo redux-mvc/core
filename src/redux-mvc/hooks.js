@@ -58,7 +58,7 @@ export const useModel = (selectors, actions, props) => {
             }, context.renderLevel)
         }
         return noop
-    }, [store, props, selectors, instanceId])
+    }, [store, props, instanceId])
 
     const actionProps = useMemo(
         () =>

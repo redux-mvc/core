@@ -1,15 +1,16 @@
 import * as R from "ramda"
 import { eventChannel } from "redux-saga"
-import { put, fork, all, take, call } from "redux-saga/effects"
+import { put, fork, all, take, call, select } from "redux-saga/effects"
 
 import { actions } from "./model"
+import { getFullPath } from "./selectors"
 
 const watchNavigate = function*() {
     const history = window.history
     for (;;) {
-        const {
-            payload: { href },
-        } = yield take(actions.navigate.type)
+        yield take(actions.navigate.type)
+
+        const href = yield select(getFullPath)
 
         yield call(
             [history, history.pushState],
@@ -37,22 +38,13 @@ const watchLocationChanges = function*() {
 
     for (;;) {
         yield take(locationChan)
-        yield put(
-            actions.setLocation({
-                locationStr: window.location.pathname,
-                hashStr: window.location.hash,
-            })
-        )
+        yield put(actions.setHref(R.replace("#", "", window.location.hash)))
     }
 }
 
 const rootSaga = function*() {
-    yield put(
-        actions.setLocation({
-            locationStr: window.location.pathname,
-            hashStr: window.location.hash,
-        })
-    )
+    yield put(actions.setBase(window.location.pathname))
+    yield put(actions.setHref(R.replace("#", "", window.location.hash)))
     yield all([fork(watchNavigate), fork(watchLocationChanges)])
 }
 

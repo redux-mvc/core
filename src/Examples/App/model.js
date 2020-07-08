@@ -1,22 +1,17 @@
-import * as R from "ramda"
 import { createModel } from "redux-mvc"
 
 const model = createModel({
     iniState: {
-        locationStr: "",
-        hashStr: "",
+        href: "",
+        base: "",
     },
     reducers: {
-        setLocation: (_, { payload: { locationStr, hashStr } }) => ({
-            locationStr,
-            hashStr,
-        }),
-        navigate: (_, { payload }) => ({
-            locationStr: R.nth(1, R.match(/^(.*)#.*$/i, payload.href)) || "/",
-            hashStr: R.nth(1, R.match(/^.*(#\/.*)$/i, payload.href)) || "#/",
+        navigate: (_, { payload: { href } }) => ({
+            href,
         }),
     },
     namespace: "App",
+    singleton: true,
 })
 
 const { getters, actions } = model

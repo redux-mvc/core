@@ -2,22 +2,26 @@ import React from "react"
 import { connect } from "redux-mvc"
 
 import { actions } from "../model"
-import { noop } from "../utils"
+import { noop } from "App/utils"
+
+import { getHashedBase } from "../selectors"
 
 const decorate = connect(
-    null,
+    { base: getHashedBase },
     {
         navigate: actions.navigate,
-    }
+    },
+    { forwardRef: true }
 )
 
-const Link = ({ onClick = noop, navigate, children, ...props }) => (
+const Link = ({ onClick = noop, navigate, children, href, base, ...props }) => (
     <a
         onClick={event => {
             event.preventDefault()
             onClick()
-            navigate(props)
+            navigate({ href })
         }}
+        href={base + href}
         {...props}
     >
         {children}
