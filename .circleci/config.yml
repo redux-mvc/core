@@ -108,18 +108,30 @@ jobs:
 workflows:
   version: 2
   master:
-    filters:
-      branches:
-        only:
-          - master
     jobs:
-      - unit-test
+      - unit-test:
+          filters:
+            branches:
+              only:
+                - master
       - build:
           requires:
             - unit-test
+          filters:
+            branches:
+              only:
+                - master
       - examples-build:
           requires:
             - build
+          filters:
+            branches:
+              only:
+                - master
       - examples-deploy:
           requires:
             - examples-build
+          filters:
+            branches:
+              only:
+                - master
