@@ -19,7 +19,8 @@ const getStateProps = ({ selectors, instanceId, cache, state, props }) =>
         }
     }, {})
 
-export const useModel = (selectors, actions, props) => {
+// eslint-disable-next-line no-unused-vars
+export const useModel = (selectors, actions, { children, ...props }) => {
     const context = useContext(StoreManager)
     const instanceId = propOr(context.instanceId, "instanceId", props)
     const store = path(["moduleInstances", context.contextId, "store"], context)
