@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useMemo } from "react"
 import hoistNonReactStatics from "hoist-non-react-statics"
 
 import { getDisplayName } from "./utils"
@@ -13,26 +13,31 @@ export const connect = (selectors, actions, options = {}) => Component => {
             ? React.memo(Component)
             : Component
 
-    const ConnectComponent = React.memo(props => {
+    const ConnectComponent = props => {
         const context = useContext(StoreManager)
         const modelProps = useModel(selectors, actions, props)
+        const newContext = useMemo(() => {
+            return {
+                ...context,
+                instanceId: modelProps.instanceId,
+                renderLevel: context.renderLevel + 1,
+            }
+        }, [context, modelProps.instanceId])
 
         const dom = <WrappedComponent {...props} {...modelProps} />
 
         return (
-            <StoreManager.Provider
-                value={{
-                    ...context,
-                    instanceId: modelProps.instanceId,
-                    renderLevel: context.renderLevel + 1,
-                }}
-            >
+            <StoreManager.Provider value={newContext}>
                 {dom}
             </StoreManager.Provider>
         )
-    })
+    }
 
-    let Connect = ConnectComponent
+    ConnectComponent.displayName = `MVCInyectProps(${getDisplayName(
+        Component
+    )})`
+
+    let Connect = React.memo(ConnectComponent)
 
     if (forwardRef) {
         Connect = React.forwardRef((props, ref) => (
@@ -40,9 +45,7 @@ export const connect = (selectors, actions, options = {}) => Component => {
         ))
     }
 
-    Connect.displayName = `WithReduxMVCConnect(${getDisplayName(
-        WrappedComponent
-    )})`
+    Connect.displayName = `MVCConnect(${getDisplayName(Component)})`
 
-    return hoistNonReactStatics(Connect, WrappedComponent)
+    return hoistNonReactStatics(Connect, Component)
 }

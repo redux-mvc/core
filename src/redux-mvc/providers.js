@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { PureComponent } from "react"
 
 import { getDisplayName } from "./utils"
 
@@ -11,7 +11,7 @@ export const createContext = ({
     contextId = Symbol("MVCContextId"),
     ...options
 }) => WrappedComponent => {
-    class WithReduxMVCContext extends Component {
+    class WithReduxMVCContext extends PureComponent {
         static contextType = StoreManager
 
         constructor(props, context) {
@@ -76,7 +76,7 @@ export const createContext = ({
         }
     }
 
-    WithReduxMVCContext.displayName = `WithReduxMVCContext(${getDisplayName(
+    WithReduxMVCContext.displayName = `MVCContext(${getDisplayName(
         WrappedComponent
     )})`
 

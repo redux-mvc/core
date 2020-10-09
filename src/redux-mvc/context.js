@@ -8,3 +8,5 @@ export const StoreManager = React.createContext({
     instanceId: DEFAULT_INSTANCE_ID,
     renderLevel: 0,
 })
+
+StoreManager.displayName = "StoreManager"
