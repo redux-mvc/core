@@ -1,6 +1,6 @@
 {
     "name": "@redux-mvc/core",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "MVC Framework (react and redux)",
     "main": "dist/lib/index.js",
     "module": "dist/es/index.js",
