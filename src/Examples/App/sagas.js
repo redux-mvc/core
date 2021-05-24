@@ -16,7 +16,7 @@ const watchNavigate = function*() {
             [history, history.pushState],
             {
                 ...history.state,
-                page: R.pathOr(-1, ["state", "page"]) + 1,
+                page: R.pathOr(-1, ["state", "page"], history.state) + 1,
             },
             "",
             href

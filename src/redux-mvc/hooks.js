@@ -30,15 +30,18 @@ export const useModel = (selectors, actions, { children, ...props }) => {
         )
     }
     const [cache] = useState({})
-    const [stateProps, setStateProps] = useState(
-        getStateProps({
-            selectors,
-            instanceId,
-            cache,
-            state: store.getState(),
-            props,
-        })
+    const iniStateProps = useMemo(
+        () =>
+            getStateProps({
+                selectors,
+                instanceId,
+                cache,
+                state: store.getState(),
+                props,
+            }),
+        []
     )
+    const [stateProps, setStateProps] = useState(iniStateProps)
 
     useEffect(() => {
         if (store) {
