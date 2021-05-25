@@ -133,7 +133,7 @@ export const connect = (selectors, actions, options = {}) => Component => {
             }
         }
 
-        componentWillUnmout() {
+        componentWillUnmount() {
             this.subscription()
         }
 
