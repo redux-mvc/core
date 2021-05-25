@@ -1,6 +1,6 @@
 {
     "name": "@redux-mvc/core",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "MVC Framework (react and redux)",
     "main": "dist/lib/index.js",
     "module": "dist/es/index.js",
@@ -11,8 +11,8 @@
         "lint": "eslint ./src",
         "build": "yarn build:commonjs && yarn build:es",
         "build:dev": "webpack --config ./webpack.dev.js",
-        "build:commonjs": "BABEL_ENV=commonjs babel src/redux-mvc --out-dir dist/lib",
-        "build:es": "babel src/redux-mvc --out-dir dist/es",
+        "build:commonjs": "BABEL_ENV=commonjs babel src/redux-mvc --out-dir dist/lib --ignore '**/*.test.js'",
+        "build:es": "babel src/redux-mvc --out-dir dist/es --ignore '**/*.test.js'",
         "test": "jest",
         "all": "yarn --install --pure-lockfile && yarn lint && yarn test --coverage && yarn clean && yarn build",
         "hooks:pre-commit": "./bin/lint-staged.sh && yarn test",
