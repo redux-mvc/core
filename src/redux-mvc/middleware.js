@@ -1,7 +1,7 @@
 import { pick, diff, has, noop } from "./utils"
 import { GLOBAL_UPDATE } from "./constants"
 
-const globalUpdate = (action, state) => ({
+export const globalUpdate = (action, state) => ({
     ...action,
     meta: { ...(action.meta || {}), [GLOBAL_UPDATE]: state },
 })

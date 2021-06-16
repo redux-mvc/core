@@ -17,7 +17,7 @@ import {
     DEFAULT_INSTANCE_ID,
 } from "./constants"
 
-import { makeBridgeMiddleware } from "./middleware"
+import { makeBridgeMiddleware, globalUpdate } from "./middleware"
 
 export const addReducer = () => module => {
     const dependencies = Object.values(module.dependencies || {})
@@ -100,15 +100,15 @@ export const addLifecycle = (options = {}) => module => ({
     ...module,
     constructor({ persist = true, moduleInstances, contextId }) {
         let moduleInstance = moduleInstances[contextId]
+        const globalInstance =
+            contextId === GLOBAL_CONTEXT_ID
+                ? moduleInstance
+                : moduleInstances[GLOBAL_CONTEXT_ID]
 
         if (!moduleInstance[created] || !persist) {
             moduleInstance[created] = true
 
             let middleware = Object.values(moduleInstance.middleware || {})
-            const globalInstance =
-                contextId === GLOBAL_CONTEXT_ID
-                    ? moduleInstance
-                    : moduleInstances[GLOBAL_CONTEXT_ID]
 
             if (
                 applyBridgeMiddleware({
@@ -160,6 +160,19 @@ export const addLifecycle = (options = {}) => module => ({
                     })(
                         applyMiddleware(...middleware),
                         ...(moduleInstance.enhancers || [])
+                    )
+                )
+            )
+        } else if (
+            contextId !== GLOBAL_CONTEXT_ID &&
+            prop("store", globalInstance)
+        ) {
+            moduleInstance.store.dispatch(
+                globalUpdate(
+                    { type: "SyncGlobalState" },
+                    pick(
+                        moduleInstance.trackGlobalNamespaces || [],
+                        globalInstance.store.getState()
                     )
                 )
             )
