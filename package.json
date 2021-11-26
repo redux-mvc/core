@@ -1,6 +1,6 @@
 {
     "name": "@redux-mvc/core",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "description": "MVC Framework (react and redux)",
     "main": "dist/lib/index.js",
     "module": "dist/es/index.js",
@@ -22,7 +22,7 @@
         "dist"
     ],
     "peerDependencies": {
-        "react": "^16.8.3",
+        "react": "^16.8.3 || ^17.0.2",
         "redux": "^2.0.0 || ^3.0.0 || ^4.0.0-0"
     },
     "dependencies": {
@@ -36,6 +36,7 @@
         "@babel/plugin-transform-runtime": "^7.5.5",
         "@babel/preset-env": "^7.4.5",
         "@babel/preset-react": "^7.0.0",
+        "@wojtekmaj/enzyme-adapter-react-17": "^0.6.5",
         "babel-eslint": "^10.0.2",
         "babel-loader": "^8.0.6",
         "babel-plugin-transform-class-properties": "^6.24.1",
@@ -59,8 +60,8 @@
         "path-match": "^1.2.4",
         "prettier": "^1.14.2",
         "ramda": "^0.26.1",
-        "react": "^16.8.6",
-        "react-dom": "^16.8.6",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
         "redux-saga": "^1.0.5",
         "style-loader": "^1.1.3",
         "todomvc-app-css": "^2.0.0",
