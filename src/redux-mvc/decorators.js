@@ -89,7 +89,7 @@ const defaultCompose = () => compose
 
 const composeEnhancers =
     (process.env.NODE_ENV !== "production" &&
-        window &&
+        typeof window !== "undefined" &&
         // eslint-disable-next-line no-underscore-dangle
         window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
     defaultCompose

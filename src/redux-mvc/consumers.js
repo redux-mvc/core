@@ -48,10 +48,6 @@ export const connect = (selectors, actions, options = {}) => Component => {
                     renderLevel: context.renderLevel + 1,
                 },
             }
-
-            this.subscription = store.subscribe(() => {
-                this.recomputeStateProps()
-            }, context.renderLevel)
         }
 
         static getDerivedStateFromProps(withChildren, state) {
@@ -131,6 +127,16 @@ export const connect = (selectors, actions, options = {}) => Component => {
             if (newState) {
                 this.setState(newState)
             }
+        }
+
+        componentDidMount() {
+            const store = path(
+                ["moduleInstances", this.context.contextId, "store"],
+                this.context
+            )
+            this.subscription = store.subscribe(() => {
+                this.recomputeStateProps()
+            }, this.context.renderLevel)
         }
 
         componentWillUnmount() {
