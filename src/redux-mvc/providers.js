@@ -5,6 +5,7 @@ import { getDisplayName } from "./utils"
 import { StoreManager } from "./context"
 
 import { DEFAULT_INSTANCE_ID } from "./constants"
+import hoistNonReactStatics from "hoist-non-react-statics"
 
 export const createContext = ({
     module,
@@ -80,5 +81,5 @@ export const createContext = ({
         WrappedComponent
     )})`
 
-    return WithReduxMVCContext
+    return hoistNonReactStatics(WithReduxMVCContext, WrappedComponent)
 }
